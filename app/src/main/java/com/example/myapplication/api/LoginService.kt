@@ -1,12 +1,11 @@
 package com.example.myapplication.api
 
-import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-abstract class LoginService {
+class LoginService {
 
     companion object {
         const val LOGIN_URL = "https://nstaging.daouoffice.com"
