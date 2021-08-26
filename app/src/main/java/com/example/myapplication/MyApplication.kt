@@ -22,6 +22,7 @@ class MyApplication: Application() {
         super.onCreate()
 
         startKoin {
+            printLogger()
             // declare used Android context
             androidContext(this@MyApplication)
             // declare modules

@@ -13,26 +13,36 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.myapplication.R
+import com.example.myapplication.databinding.ActivityLoginBinding
+import com.example.myapplication.databinding.ActivitySplashBinding
+import com.example.myapplication.ui.login.LoginActivity
 import com.example.myapplication.ui.main.MainActivity
 import com.google.android.material.snackbar.Snackbar
 
 /**
  * splash 시작 시 권한체크를 하고 권한 없으면 요청/종료
  * 권한 있을 시 LoginActivity로 이동
+ *
+ * android 12부터 커스텀스플래시 안되나봄..
+ * 이 부분 변경필요
  */
 class SplashActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.M)
 
+    // 상수부분은 추후 const파일에 저장할 것
+    companion object {
+        const val LOCATION_PERMISSION_CODE = 1001
+        const val BACKGROUND_LOCATION_PERMISSION_CODE = 1002
+    }
+
     val TAG = "SplashActivity"
-    val LOCATION_PERMISSION_CODE = 1001
-    val BACKGROUND_LOCATION_PERMISSION_CODE = 1002
 
-//    lateinit var binding : ActivityS
-
+    lateinit var binding: ActivitySplashBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_splash)
+        binding = ActivitySplashBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         Handler(mainLooper).postDelayed({
             checkPermissions()
@@ -90,7 +100,8 @@ class SplashActivity : AppCompatActivity() {
                 ) == PackageManager.PERMISSION_GRANTED) -> {
                     // You can use the API that requires the permission.
                     Toast.makeText(this, "권한 설정됨", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this, MainActivity::class.java))
+                    startActivity(Intent(this, LoginActivity::class.java))
+//                    startActivity(Intent(this, MainActivity::class.java))
                 }
                 shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION) -> {
                     Log.d(TAG, "in background rationale")
@@ -113,7 +124,8 @@ class SplashActivity : AppCompatActivity() {
             }
         } else {
             Toast.makeText(this, "권한 설정됨", Toast.LENGTH_SHORT).show()
-            startActivity(Intent(this, MainActivity::class.java))
+//            startActivity(Intent(this, MainActivity::class.java))
+            startActivity(Intent(this, LoginActivity::class.java))
         }
     }
 
@@ -142,7 +154,8 @@ class SplashActivity : AppCompatActivity() {
                     // Permission has been granted. Start camera preview Activity.
                     Toast.makeText(this, "권한 설성 완료", Toast.LENGTH_SHORT).show()
                     /* 여기서 로그인 체크하고 액티비티 분기*/
-                    startActivity(Intent(this, MainActivity::class.java))
+//                    startActivity(Intent(this, MainActivity::class.java))
+                    startActivity(Intent(this, LoginActivity::class.java))
 
                 } else {
                     // Permission request was denied.
