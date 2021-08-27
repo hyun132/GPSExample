@@ -16,7 +16,6 @@ class LoginViewModel(repository: MyRepository) : ViewModel() {
     fun logIn(username: String, password: String) {
 
     }
-
     fun checkSession() {}
 
 }

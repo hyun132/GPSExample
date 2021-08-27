@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.NotificationManager.IMPORTANCE_DEFAULT
-import android.app.NotificationManager.IMPORTANCE_HIGH
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
@@ -15,7 +14,6 @@ import android.os.Build
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.MutableLiveData
 import com.example.myapplication.model.LocationLog
@@ -24,11 +22,6 @@ import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY
 import com.google.android.gms.tasks.Task
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.time.format.DateTimeFormatter
 
 class TrackingService : Service() {
 
@@ -154,7 +147,6 @@ class TrackingService : Service() {
                 }
             }
         }
-
     }
 
     val locationCallback = object : LocationCallback() {
@@ -168,12 +160,10 @@ class TrackingService : Service() {
                 TAG,
                 "in locationCallback : currentLcation -> lat:${locationResult.lastLocation.latitude}, lng:${locationResult.lastLocation.longitude}"
             )
-
 //                // 리스트의 길이 100개넘으면 db에 저장.? 아니면그냥 매번저장..?
 //                CoroutineScope(Dispatchers.IO).launch {
 //
 //                }
-
         }
     }
 
