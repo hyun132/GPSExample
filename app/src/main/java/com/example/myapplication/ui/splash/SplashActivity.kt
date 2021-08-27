@@ -4,20 +4,15 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.example.myapplication.R
-import com.example.myapplication.databinding.ActivityLoginBinding
-import com.example.myapplication.databinding.ActivitySplashBinding
 import com.example.myapplication.ui.login.LoginActivity
-import com.example.myapplication.ui.main.MainActivity
-import com.google.android.material.snackbar.Snackbar
 
 /**
  * splash 시작 시 권한체크를 하고 권한 없으면 요청/종료
@@ -27,7 +22,6 @@ import com.google.android.material.snackbar.Snackbar
  * 이 부분 변경필요
  */
 class SplashActivity : AppCompatActivity() {
-    @RequiresApi(Build.VERSION_CODES.M)
 
     // 상수부분은 추후 const파일에 저장할 것
     companion object {
@@ -37,12 +31,9 @@ class SplashActivity : AppCompatActivity() {
 
     val TAG = "SplashActivity"
 
-    lateinit var binding: ActivitySplashBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        binding = ActivitySplashBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(R.layout.activity_splash)
 
         Handler(mainLooper).postDelayed({
             checkPermissions()

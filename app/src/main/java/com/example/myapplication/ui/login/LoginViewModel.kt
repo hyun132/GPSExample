@@ -2,25 +2,20 @@ package com.example.myapplication.ui.login
 
 import android.content.Context
 import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.myapplication.MyApplication.Companion.getApplicationContext
 import com.example.myapplication.model.LoginRequest
 import com.example.myapplication.model.LoginResponse
-import com.example.myapplication.repsitory.MyRepository
-import com.google.android.gms.maps.model.LatLng
+import com.example.myapplication.repsitory.LogInRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.koin.core.parameter.parametersOf
-import org.koin.java.KoinJavaComponent.inject
 import retrofit2.Response
 
-class LoginViewModel(val repository: MyRepository) : ViewModel() {
+class LoginViewModel(val repository: LogInRepository) : ViewModel() {
 
-    val TAG = "LoginViewModel"
-
+    private val TAG = "LoginViewModel"
     val isLoginSuccess = MutableLiveData<Boolean>(false)
 
     /*

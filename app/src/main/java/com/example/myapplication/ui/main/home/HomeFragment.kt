@@ -11,10 +11,12 @@ import com.example.myapplication.R
 import com.example.myapplication.TrackingService
 import com.example.myapplication.TrackingService.Companion.START_SERVICE
 import com.example.myapplication.databinding.FragmentHomeBinding
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class HomeFragment : Fragment() {
 
     lateinit var binding : FragmentHomeBinding
+    val homeViewModel:HomeViewModel by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,6 +38,11 @@ class HomeFragment : Fragment() {
             }
 
         }
+
+//        homeViewModel.savedTrackingList.observe(viewLifecycleOwner,{
+//            it.map { item -> println("loaded data from room! >> ${item.locationLog}") }
+//        })
+
     }
 
 }
