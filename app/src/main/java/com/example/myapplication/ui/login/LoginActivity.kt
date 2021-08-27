@@ -9,7 +9,7 @@ import com.example.myapplication.databinding.ActivityLoginBinding
 class LoginActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityLoginBinding
-    val viewModel:LoginViewModel by viewModels()
+    val viewModel: LoginViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,7 +21,7 @@ class LoginActivity : AppCompatActivity() {
             val username = etId.text.toString()
             val password = etPw.text.toString()
             tvLoginButton.setOnClickListener {
-                viewModel.logIn(username,password)
+                viewModel.logIn(username, password)
             }
         }
     }

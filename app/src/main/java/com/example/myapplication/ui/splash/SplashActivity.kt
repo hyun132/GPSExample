@@ -21,13 +21,14 @@ import com.google.android.material.snackbar.Snackbar
  * 권한 있을 시 LoginActivity로 이동
  */
 class SplashActivity : AppCompatActivity() {
-    @RequiresApi(Build.VERSION_CODES.M)
 
-    val TAG = "SplashActivity"
-    val LOCATION_PERMISSION_CODE = 1001
-    val BACKGROUND_LOCATION_PERMISSION_CODE = 1002
+    companion object {
+        const val TAG = "SplashActivity"
+        const val LOCATION_PERMISSION_CODE = 1001
+        const val BACKGROUND_LOCATION_PERMISSION_CODE = 1002
+    }
 
-//    lateinit var binding : ActivityS
+    private val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,8 +40,6 @@ class SplashActivity : AppCompatActivity() {
         }, 1000)
 
     }
-
-    val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
 
     fun checkPermissions() {
         permissions.map { checkThisPermissionGranted(it) }
@@ -153,7 +152,5 @@ class SplashActivity : AppCompatActivity() {
                 }
             }
         }
-
-
     }
 }
