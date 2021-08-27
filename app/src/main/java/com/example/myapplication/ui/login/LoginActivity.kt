@@ -1,15 +1,21 @@
 package com.example.myapplication.ui.login
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.viewModels
 import com.example.myapplication.R
 import com.example.myapplication.databinding.ActivityLoginBinding
+import com.example.myapplication.model.LoginRequest
+import com.example.myapplication.ui.main.MainActivity
+import org.koin.androidx.viewmodel.ext.android.getViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class LoginActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityLoginBinding
-    val viewModel: LoginViewModel by viewModels()
+    val loginViewModel: LoginViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,11 +24,20 @@ class LoginActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.apply {
-            val username = etId.text.toString()
-            val password = etPw.text.toString()
             tvLoginButton.setOnClickListener {
-                viewModel.logIn(username, password)
+                val username = etId.text.toString()
+                val password = etPw.text.toString()
+                Log.d("MainActivity", "로그인 버튼 클릭")
+                if (username.isEmpty() || password.isEmpty()) println("아이디오 비밀번호 입력해주세요")
+                else loginViewModel.logIn(LoginRequest(username = username, password = password))
             }
         }
+
+        loginViewModel.isLoginSuccess.observe(this, { loginSuccess ->
+            if (loginSuccess) {
+                startActivity(Intent(this, MainActivity::class.java))
+                finish()
+            }
+        })
     }
 }

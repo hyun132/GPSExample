@@ -16,24 +16,38 @@ import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.MutableLiveData
+import com.example.myapplication.database.TrackingDatabase
 import com.example.myapplication.model.LocationLog
+import com.example.myapplication.repsitory.LogInRepository
+import com.example.myapplication.repsitory.TrackingRepository
 import com.example.myapplication.ui.main.MainActivity
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY
 import com.google.android.gms.tasks.Task
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
-class TrackingService : Service() {
+class TrackingService() : Service() {
 
     var isServiceRunnig = false
     val TAG = "TrackingService"
 
-    val trackingLogToSave = MutableLiveData<MutableList<LocationLog>>()
+//    val trackingLogToSave = MutableLiveData<MutableList<LocationLog>>()
+//    val locationLogToCheck = MutableLiveData<MutableList<LocationLog>>()
     var currentLocation: Location? = null
+
+    val dao = TrackingDatabase.getInstance().trackingDao()
+    val trackingRepository = TrackingRepository(dao)
 
     val fusedLocationProviderClient: FusedLocationProviderClient by lazy {
         LocationServices.getFusedLocationProviderClient(this)
     }
+
+    val currentTime by lazy { System.currentTimeMillis() }
+    //일단 테스트위해서
 
     override fun onBind(intent: Intent): IBinder {
         TODO("Return the communication channel to the service.")
@@ -47,9 +61,12 @@ class TrackingService : Service() {
                     if (isServiceRunnig) {
                         cancelGetLocationPerThreeSecond()
                         stopForeground(true)
+
                     } else {
                         createNotificationAndStartService()
-                        getLocationPerThreeSecond()
+//                        CoroutineScope(Dispatchers.Default).launch {
+                            getLocationPerThreeSecond()
+//                        }
                         isServiceRunnig = true
                     }
                 }
@@ -73,6 +90,7 @@ class TrackingService : Service() {
     }
 
     fun createNotificationAndStartService() {
+
         val intent = Intent(this, MainActivity::class.java).also {
             it.action = START_SERVICE
             it.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
@@ -101,6 +119,9 @@ class TrackingService : Service() {
     @SuppressLint("MissingPermission")
     //처음에 앱 시작할때 권한 요청하기때문에 일단은 보류 -> 추후 해당 프래그먼트 resume될 때 다시 체크하도록 하던지..
     fun getLocationPerThreeSecond() {
+
+        println(">>>>>>>> currentThread is ... ${Thread.currentThread().name}")
+
         fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
             if (location != null) {
                 currentLocation = location
@@ -126,7 +147,7 @@ class TrackingService : Service() {
             fusedLocationProviderClient.requestLocationUpdates(
                 locationRequest,
                 locationCallback,
-                Looper.getMainLooper()
+                Looper.myLooper()!!             //동작확인을 위해 타입 강제함.
             )
         }
 
@@ -147,6 +168,7 @@ class TrackingService : Service() {
                 }
             }
         }
+
     }
 
     val locationCallback = object : LocationCallback() {
@@ -160,10 +182,24 @@ class TrackingService : Service() {
                 TAG,
                 "in locationCallback : currentLcation -> lat:${locationResult.lastLocation.latitude}, lng:${locationResult.lastLocation.longitude}"
             )
+            CoroutineScope(Dispatchers.IO).launch {
+                println("db저장요청")
+                trackingRepository.saveLocationLogs(LocationLog(latitude = locationResult.lastLocation.latitude.toString(),longitude = locationResult.lastLocation.longitude.toString(),startTime = currentTime))
+            }
+
+            CoroutineScope(Dispatchers.IO).launch {
+                trackingRepository.getSavedLocationList(currentTime).onEach {
+                    it.onEach { log ->
+                        println("load from db $log")
+                    }
+                }
+            }
+
 //                // 리스트의 길이 100개넘으면 db에 저장.? 아니면그냥 매번저장..?
 //                CoroutineScope(Dispatchers.IO).launch {
 //
 //                }
+
         }
     }
 
