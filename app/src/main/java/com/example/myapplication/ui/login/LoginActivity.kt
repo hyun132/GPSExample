@@ -1,15 +1,12 @@
 package com.example.myapplication.ui.login
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import androidx.activity.viewModels
-import com.example.myapplication.R
+import androidx.appcompat.app.AppCompatActivity
 import com.example.myapplication.databinding.ActivityLoginBinding
 import com.example.myapplication.model.LoginRequest
 import com.example.myapplication.ui.main.MainActivity
-import org.koin.androidx.viewmodel.ext.android.getViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class LoginActivity : AppCompatActivity() {
@@ -33,6 +30,7 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
+        loginViewModel.checkSession()
         loginViewModel.isLoginSuccess.observe(this, { loginSuccess ->
             if (loginSuccess) {
                 startActivity(Intent(this, MainActivity::class.java))

@@ -25,11 +25,13 @@ class LogInRepository(private val trackingDao: TrackingDao) {
     }
 
     /* 저장된 쿠키 값을 이용한 로그인 (수정필요) */
-    suspend fun logInWithCookie(cookie: String) {
+    suspend fun logInWithCookie(cookie: String): Response<LoginResponse>? {
+        var response: Response<LoginResponse>? = null
         try {
-            loginApi.logInWithCookie(cookie)
+            response = loginApi.logInWithCookie(cookie)
         } catch (e: IOException) {
             e.printStackTrace()
         }
+        return response
     }
 }

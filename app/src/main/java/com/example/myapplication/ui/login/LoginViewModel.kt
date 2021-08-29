@@ -60,12 +60,23 @@ class LoginViewModel(val repository: LogInRepository) : ViewModel() {
         }
     }
 
-    // 세션 로그인부분은 api정상화되면 구현
+    /*
+    * sharedPreference에 저장된 쿠키값이 유효한 경우 자동 로그인.
+    * 쿠기값 유효성을 만료일로 할지 요청을 보낼지 고민중.
+    * */
     fun checkSession() {
         CoroutineScope(Dispatchers.IO).launch {
             val sharedPref =
                 getApplicationContext().getSharedPreferences("login-cookie", Context.MODE_PRIVATE)
-            sharedPref.getString("cookie", "")?.let { repository.logInWithCookie(it) }
+            sharedPref.getString("cookie", "")?.let { cookie ->
+                repository.logInWithCookie(cookie).let { response ->
+                    if (response != null) {
+                        if (response.body()?.code == "200") {
+                            isLoginSuccess.postValue(true)
+                        }
+                    }
+                }
+            }
         }
     }
 
