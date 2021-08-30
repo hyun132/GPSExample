@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_grahp"
     app:startDestination="@id/homeFragment">
 
@@ -11,5 +12,26 @@
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.example.myapplication.ui.main.home.HomeFragment"
-        android:label="HomeFragment" />
+        android:label="HomeFragment" >
+        <action
+            android:id="@+id/action_homeFragment_to_drivingListFragment"
+            app:destination="@id/drivingListFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/drivingListFragment"
+        android:name="com.example.myapplication.ui.main.drivingList.DrivingListFragment"
+        android:label="fragment_driving_list"
+        tools:layout="@layout/fragment_driving_list" >
+        <action
+            android:id="@+id/action_drivingListFragment_to_drivingRouteFragment"
+            app:destination="@id/drivingRouteFragment" >
+            <argument
+                android:name="startTime"
+                app:argType="java.util.Date" />
+        </action>
+    </fragment>
+    <fragment
+        android:id="@+id/drivingRouteFragment"
+        android:name="com.example.myapplication.ui.main.drivingroute.DrivingRouteFragment"
+        android:label="DrivingRouteFragment" />
 </navigation>

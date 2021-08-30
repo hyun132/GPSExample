@@ -51,6 +51,16 @@
             app:layout_constraintTop_toBottomOf="@id/tv_driving_distance" />
 
         <TextView
+            android:id="@+id/tv_go_to_driving_list_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:textColor="@color/purple_200"
+            android:padding="8dp"
+            android:text="나의 주행기록"/>
+
+        <TextView
             android:id="@+id/tv_tracking_start_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

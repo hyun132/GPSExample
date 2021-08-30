@@ -6,6 +6,7 @@ import androidx.room.Query
 import com.example.myapplication.model.LocationLog
 import com.example.myapplication.model.TrackingLog
 import kotlinx.coroutines.flow.Flow
+import java.util.*
 
 @Dao
 interface TrackingDao {
@@ -20,8 +21,11 @@ interface TrackingDao {
     fun insertLocationLog(locationLog: LocationLog)
 
     @Insert
-    fun insertTrackingLog(trackingLog:TrackingLog)
+    fun insertTrackingLog(trackingLog: TrackingLog)
 
     @Query("select * from location_table where startTime = :startTime")
-    fun getLocationLogs(startTime:Long): Flow<List<LocationLog>>
+    fun getLocationLogs(startTime: Date): Flow<List<LocationLog>>
+
+    @Query("select * from tracking_table")
+    fun getTrackingLogs(): Flow<List<TrackingLog>>
 }

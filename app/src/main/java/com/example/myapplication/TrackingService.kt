@@ -15,27 +15,29 @@ import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.lifecycle.MutableLiveData
 import com.example.myapplication.database.TrackingDatabase
 import com.example.myapplication.model.LocationLog
-import com.example.myapplication.repsitory.LogInRepository
+import com.example.myapplication.model.TrackingLog
 import com.example.myapplication.repsitory.TrackingRepository
 import com.example.myapplication.ui.main.MainActivity
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.Task
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import java.util.*
 
-class TrackingService() : Service() {
+class TrackingService : Service() {
 
     var isServiceRunnig = false
     val TAG = "TrackingService"
 
-//    val trackingLogToSave = MutableLiveData<MutableList<LocationLog>>()
+    //    val trackingLogToSave = MutableLiveData<MutableList<LocationLog>>()
 //    val locationLogToCheck = MutableLiveData<MutableList<LocationLog>>()
     var currentLocation: Location? = null
 
@@ -44,6 +46,13 @@ class TrackingService() : Service() {
 
     val fusedLocationProviderClient: FusedLocationProviderClient by lazy {
         LocationServices.getFusedLocationProviderClient(this)
+    }
+
+    val parentJob = Job()
+    var drivingDistance = 0.0
+    var lastLocation = Location("").apply {
+        latitude = 0.0
+        longitude = 0.0
     }
 
     val currentTime by lazy { System.currentTimeMillis() }
@@ -60,13 +69,23 @@ class TrackingService() : Service() {
                 START_SERVICE -> {
                     if (isServiceRunnig) {
                         cancelGetLocationPerThreeSecond()
+                        //db에 주행기록 저장.
+                        CoroutineScope(Dispatchers.IO + parentJob).launch {
+                            println("save tracking logs !! >>>>>>>> currentThread is ... ${Thread.currentThread().name}")
+                            trackingRepository.saveTrackingLogs(
+                                TrackingLog(
+                                    trackingStartTime = Date(currentTime),
+                                    trackingEndTime = Date(System.currentTimeMillis()),
+                                    trackingDistance = drivingDistance //m단위
+                                )
+                            )
+                        }
                         stopForeground(true)
-
                     } else {
                         createNotificationAndStartService()
-//                        CoroutineScope(Dispatchers.Default).launch {
+                        CoroutineScope(Dispatchers.Default + parentJob).launch {
                             getLocationPerThreeSecond()
-//                        }
+                        }
                         isServiceRunnig = true
                     }
                 }
@@ -98,7 +117,7 @@ class TrackingService() : Service() {
 //
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, 0)
 
-        val notificationbuilder = NotificationCompat.Builder(this, NOTIFICATIO_CHANNEL_ID)
+        val notificationBuilder = NotificationCompat.Builder(this, NOTIFICATIO_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle("app running")
             .setContentText("테스트")
@@ -109,7 +128,7 @@ class TrackingService() : Service() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) createNotificationChannel()
 
-        startForeground(NOTIFICATIO_ID, notificationbuilder.build())
+        startForeground(NOTIFICATIO_ID, notificationBuilder.build())
     }
 
     /*
@@ -175,35 +194,43 @@ class TrackingService() : Service() {
         override fun onLocationResult(locationResult: LocationResult) {
             super.onLocationResult(locationResult)
 
-            currentLocation = locationResult.lastLocation
+            val newLocation = locationResult.lastLocation
 
             // 일단 위치정보 받아오면 로그로찍어보기
             Log.d(
                 TAG,
-                "in locationCallback : currentLcation -> lat:${locationResult.lastLocation.latitude}, lng:${locationResult.lastLocation.longitude}"
+                "in locationCallback : currentLcation -> lat:${newLocation.latitude}, lng:${newLocation.longitude}"
             )
-            CoroutineScope(Dispatchers.IO).launch {
-                println("db저장요청")
-                trackingRepository.saveLocationLogs(LocationLog(latitude = locationResult.lastLocation.latitude.toString(),longitude = locationResult.lastLocation.longitude.toString(),startTime = currentTime))
+
+            if (lastLocation.latitude == 0.0 && lastLocation.longitude == 0.0) {
+                lastLocation = newLocation
+            } else {
+                drivingDistance += calculateDistance(lastLocation, newLocation)
+                lastLocation = newLocation
             }
 
-            CoroutineScope(Dispatchers.IO).launch {
-                trackingRepository.getSavedLocationList(currentTime).onEach {
+            CoroutineScope(Dispatchers.IO + parentJob).launch {
+                println("db저장요청 >>>>>>>> currentThread is ... ${Thread.currentThread().name}")
+                trackingRepository.saveLocationLogs(
+                    LocationLog(
+                        latitude = locationResult.lastLocation.latitude.toString(),
+                        longitude = locationResult.lastLocation.longitude.toString(),
+                        startTime = currentTime
+                    )
+                )
+            }
+            // 리스트의 길이 100개넘으면 db에 저장.? 아니면그냥 매번저장..?
+            CoroutineScope(Dispatchers.IO + parentJob).launch {
+                trackingRepository.getSavedLocationList(Date(currentTime)).onEach {
                     it.onEach { log ->
-                        println("load from db $log")
+                        println("load from db $log >>>>>>>> currentThread is ... ${Thread.currentThread().name}")
                     }
                 }
             }
-
-//                // 리스트의 길이 100개넘으면 db에 저장.? 아니면그냥 매번저장..?
-//                CoroutineScope(Dispatchers.IO).launch {
-//
-//                }
-
         }
     }
 
-    fun cancelGetLocationPerThreeSecond() {
+    private fun cancelGetLocationPerThreeSecond() {
         val removeTask = fusedLocationProviderClient.removeLocationUpdates(locationCallback)
         removeTask.addOnCompleteListener { task ->
             if (task.isSuccessful) {

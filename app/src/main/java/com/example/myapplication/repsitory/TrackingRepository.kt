@@ -10,6 +10,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import retrofit2.Response
 import java.io.IOException
+import java.util.*
 
 class TrackingRepository(private val trackingDao: TrackingDao) {
 
@@ -17,5 +18,7 @@ class TrackingRepository(private val trackingDao: TrackingDao) {
 
     fun saveTrackingLogs(trackingLog: TrackingLog) = trackingDao.insertTrackingLog(trackingLog)
 
-    fun getSavedLocationList(key: Long) = trackingDao.getLocationLogs(key)
+    fun getSavedLocationList(startTime: Date) = trackingDao.getLocationLogs(startTime)
+
+    fun getSavedTrackingList() = trackingDao.getTrackingLogs()
 }

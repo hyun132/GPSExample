@@ -11,7 +11,8 @@ import java.util.*
 * */
 @Entity(tableName = "tracking_table")
 data class TrackingLog(
-    @PrimaryKey(autoGenerate = true)
-    val trackingId: Int,
+    @PrimaryKey(autoGenerate = true) val trackingId: Int=0,
     val trackingStartTime: Date, //기록 시작한 시각
+    val trackingEndTime: Date, //기록 종료한 시각
+    val trackingDistance: Double
 )
