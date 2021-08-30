@@ -13,7 +13,6 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -21,25 +20,13 @@ import java.util.*
 
 class DrivingRouteFragment : Fragment() {
 
-    val drivingRouteViewModel: DrivingRouteViewModel by viewModel()
-    lateinit var startTime: Date
-
+    private val drivingRouteViewModel: DrivingRouteViewModel by viewModel()
     lateinit var map: GoogleMap
 
     private val callback = OnMapReadyCallback { googleMap ->
-        /**
-         * Manipulates the map once available.
-         * This callback is triggered when the map is ready to be used.
-         * This is where we can add markers or lines, add listeners or move the camera.
-         * In this case, we just add a marker near Sydney, Australia.
-         * If Google Play services is not installed on the device, the user will be prompted to
-         * install it inside the SupportMapFragment. This method will only be triggered once the
-         * user has installed Google Play services and returned to the app.
-         */
         map = googleMap
         val sydney = LatLng(-34.0, 151.0)
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
-
     }
 
     override fun onCreateView(
@@ -55,12 +42,10 @@ class DrivingRouteFragment : Fragment() {
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(callback)
 
-        startTime = arguments?.getSerializable("startTime") as Date
-        drivingRouteViewModel.getDrivingRoute(startTime)
-        Log.d("test : ", startTime.toString())
+        drivingRouteViewModel.startTime = arguments?.getSerializable("startTime") as Date
+        drivingRouteViewModel.getDrivingRoute(drivingRouteViewModel.startTime)
+        Log.d("test : ", drivingRouteViewModel.startTime.toString())
 
-
-        // 위치를 그리긴하는데 정확하지 않음.
         drivingRouteViewModel.locationList.observe(viewLifecycleOwner, {
             drawOnMap(it)
         })
@@ -105,6 +90,10 @@ class DrivingRouteFragment : Fragment() {
                     10F
                 )
             )
+            uiSettings.apply {
+                isZoomControlsEnabled = true
+                isMyLocationButtonEnabled = true
+            }
 //            setLatLngBoundsForCameraTarget(LatLngBounds(LatLng(s,w),LatLng(n,e)))
         }
     }

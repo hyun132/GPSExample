@@ -23,7 +23,6 @@ class HomeFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // Inflate the layout for this fragment
         binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -31,26 +30,30 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.apply {
-            //이 부분 추후 데이터바인딩으로 처리
-            tvTrackingStartButton.setOnClickListener {
-                println("button clicked")
-                Intent(requireContext(), TrackingService::class.java).also {
-                    it.action = START_SERVICE
-                    requireContext().startService(it)
-                }
-            }
-
-            tvGoToDrivingListButton.setOnClickListener {
-                findNavController().navigate(R.id.action_homeFragment_to_drivingListFragment)
-            }
-        }
-
-
-//        homeViewModel.savedTrackingList.observe(viewLifecycleOwner,{
-//            it.map { item -> println("loaded data from room! >> ${item.locationLog}") }
-//        })
-
+//        binding.apply {
+//            //이 부분 추후 데이터바인딩으로 처리
+//            tvTrackingStartButton.setOnClickListener {
+//                println("button clicked")
+//                Intent(requireContext(), TrackingService::class.java).also {
+//                    it.action = START_SERVICE
+//                    requireContext().startService(it)
+//                }
+//            }
+//
+//            tvGoToDrivingListButton.setOnClickListener {
+//                findNavController().navigate(R.id.action_homeFragment_to_drivingListFragment)
+//            }
+//        }
     }
 
+    fun trackingButtonClicked(){
+        Intent(requireContext(), TrackingService::class.java).also {
+            it.action = START_SERVICE
+            requireContext().startService(it)
+        }
+    }
+
+    fun goToDrivingButtonClicked(){
+        findNavController().navigate(R.id.action_homeFragment_to_drivingListFragment)
+    }
 }

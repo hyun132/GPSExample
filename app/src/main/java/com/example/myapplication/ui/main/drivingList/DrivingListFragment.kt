@@ -34,13 +34,17 @@ class DrivingListFragment : Fragment() {
 
         val drivingAdapter = DrivingListAdapter()
 
-        drivingAdapter.itemClickListener = object : DrivingListAdapter.DrivingItemClickListener{
+        drivingAdapter.setOnDrivingItemClickListener(object :
+            DrivingListAdapter.DrivingItemClickListener {
             override fun onClick(startTime: Date) {
                 val bundle = bundleOf("startTime" to startTime)
-                findNavController().navigate(R.id.action_drivingListFragment_to_drivingRouteFragment,bundle)
+                findNavController().navigate(
+                    R.id.action_drivingListFragment_to_drivingRouteFragment,
+                    bundle
+                )
             }
         }
-
+        )
         binding.rvDrivingList.apply {
             adapter = drivingAdapter
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)

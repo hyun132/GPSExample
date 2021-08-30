@@ -13,11 +13,13 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.util.*
 
-class DrivingRouteViewModel(val repository: TrackingRepository) : ViewModel() {
+class DrivingRouteViewModel(private val repository: TrackingRepository) : ViewModel() {
 
-    val _locationList = MutableLiveData<List<LatLng>>()
+    private val _locationList = MutableLiveData<List<LatLng>>()
     val locationList: LiveData<List<LatLng>>
         get() = _locationList
+
+    lateinit var startTime: Date
 
     fun getDrivingRoute(startTime: Date) {
         viewModelScope.launch {
@@ -26,8 +28,6 @@ class DrivingRouteViewModel(val repository: TrackingRepository) : ViewModel() {
                     LatLng(it.latitude.toDouble(), it.longitude.toDouble())
                 })
             }
-
         }
     }
-
 }

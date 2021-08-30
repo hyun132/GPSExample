@@ -1,6 +1,7 @@
 package com.example.myapplication.ui.splash
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -11,6 +12,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.lifecycleScope
 import com.example.myapplication.R
 import com.example.myapplication.ui.login.LoginActivity
 
@@ -21,6 +23,7 @@ import com.example.myapplication.ui.login.LoginActivity
  * android 12부터 커스텀스플래시 안되나봄..
  * 이 부분 변경필요
  */
+@SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {
 
     // 상수부분은 추후 const파일에 저장할 것
@@ -89,10 +92,8 @@ class SplashActivity : AppCompatActivity() {
                     applicationContext,
                     Manifest.permission.ACCESS_BACKGROUND_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED) -> {
-                    // You can use the API that requires the permission.
                     Toast.makeText(this, "권한 설정됨", Toast.LENGTH_SHORT).show()
                     startActivity(Intent(this, LoginActivity::class.java))
-//                    startActivity(Intent(this, MainActivity::class.java))
                 }
                 shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION) -> {
                     Log.d(TAG, "in background rationale")
@@ -115,7 +116,6 @@ class SplashActivity : AppCompatActivity() {
             }
         } else {
             Toast.makeText(this, "권한 설정됨", Toast.LENGTH_SHORT).show()
-//            startActivity(Intent(this, MainActivity::class.java))
             startActivity(Intent(this, LoginActivity::class.java))
         }
     }
@@ -130,11 +130,11 @@ class SplashActivity : AppCompatActivity() {
         when (requestCode) {
             LOCATION_PERMISSION_CODE -> {
                 if (grantResults.size == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission has been granted. Start camera preview Activity.
                     checkBackgroundPermissionGranted()
                 } else {
                     // Permission request was denied.
                     Toast.makeText(this, "서비스 이용을 위해 권한을 설정해주세요.", Toast.LENGTH_SHORT).show()
+                    lifecycleScope.launchWhenCreated { }
                     Handler(mainLooper).postDelayed({
                         finish()
                     }, 1000)
@@ -144,10 +144,7 @@ class SplashActivity : AppCompatActivity() {
                 if (grantResults.size == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission has been granted. Start camera preview Activity.
                     Toast.makeText(this, "권한 설성 완료", Toast.LENGTH_SHORT).show()
-                    /* 여기서 로그인 체크하고 액티비티 분기*/
-//                    startActivity(Intent(this, MainActivity::class.java))
                     startActivity(Intent(this, LoginActivity::class.java))
-
                 } else {
                     // Permission request was denied.
                     Toast.makeText(this, "서비스 이용을 위해 권한을 설정해주세요.", Toast.LENGTH_SHORT).show()

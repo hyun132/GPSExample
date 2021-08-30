@@ -3,8 +3,22 @@ package com.example.myapplication
 import android.location.Location
 import java.util.*
 
+// 확장함수로 변경하기
 fun calculationTimeDiff(date1: Date, date2: Date): CharSequence {
     val diff: Long = date1.getTime() - date2.getTime()
+    val seconds = diff / 1000
+    val minutes = seconds / 60
+    val hours = minutes / 60
+    val days = hours / 24
+    return "${hours}시간 ${minutes - 60 * hours}분 소요"
+}
+
+/*
+* 소요시간 계산.
+* 위 함수 확장함수로 변경한 것.
+* */
+fun Date.getTakenTime(date1: Date): String {
+    val diff = this.time - date1.time
     val seconds = diff / 1000
     val minutes = seconds / 60
     val hours = minutes / 60

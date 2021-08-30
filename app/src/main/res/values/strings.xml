@@ -5,4 +5,5 @@
     <string name="login_id_hint">iD</string>
     <string name="login_password_hint">PW</string>
     <string name="login_button_text">로그인</string>
+    <string name="ask_start_driving">주행을 시작하시겠습니까?</string>
 </resources>

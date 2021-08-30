@@ -5,7 +5,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.NotificationManager.IMPORTANCE_DEFAULT
 import android.app.PendingIntent
-import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
@@ -15,7 +14,8 @@ import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import com.example.myapplication.database.TrackingDatabase
+import androidx.lifecycle.LifecycleService
+import androidx.lifecycle.lifecycleScope
 import com.example.myapplication.model.LocationLog
 import com.example.myapplication.model.TrackingLog
 import com.example.myapplication.repsitory.TrackingRepository
@@ -23,32 +23,22 @@ import com.example.myapplication.ui.main.MainActivity
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.Task
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import org.koin.android.ext.android.inject
 import java.util.*
 
-class TrackingService : Service() {
-
-    var isServiceRunnig = false
+class TrackingService : LifecycleService() {
+    val trackingRepository: TrackingRepository by inject()
+    private var isServiceRunning = false
     val TAG = "TrackingService"
 
-    //    val trackingLogToSave = MutableLiveData<MutableList<LocationLog>>()
-//    val locationLogToCheck = MutableLiveData<MutableList<LocationLog>>()
-    var currentLocation: Location? = null
+    private var currentLocation: Location? = null
 
-    val dao = TrackingDatabase.getInstance().trackingDao()
-    val trackingRepository = TrackingRepository(dao)
-
-    val fusedLocationProviderClient: FusedLocationProviderClient by lazy {
+    private val fusedLocationProviderClient: FusedLocationProviderClient by lazy {
         LocationServices.getFusedLocationProviderClient(this)
     }
 
-    val parentJob = Job()
     var drivingDistance = 0.0
     var lastLocation = Location("").apply {
         latitude = 0.0
@@ -59,34 +49,36 @@ class TrackingService : Service() {
     //일단 테스트위해서
 
     override fun onBind(intent: Intent): IBinder {
+        super.onBind(intent)
         TODO("Return the communication channel to the service.")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-
-        intent?.let {
-            when (it.action) {
-                START_SERVICE -> {
-                    if (isServiceRunnig) {
-                        cancelGetLocationPerThreeSecond()
-                        //db에 주행기록 저장.
-                        CoroutineScope(Dispatchers.IO + parentJob).launch {
-                            println("save tracking logs !! >>>>>>>> currentThread is ... ${Thread.currentThread().name}")
-                            trackingRepository.saveTrackingLogs(
-                                TrackingLog(
-                                    trackingStartTime = Date(currentTime),
-                                    trackingEndTime = Date(System.currentTimeMillis()),
-                                    trackingDistance = drivingDistance //m단위
+        lifecycleScope.launch {
+            intent?.let {
+                when (it.action) {
+                    START_SERVICE -> {
+                        if (isServiceRunning) {
+                            cancelGetLocationPerThreeSecond()
+                            //db에 주행기록 저장.
+                            withContext(Dispatchers.IO) {
+                                println("save tracking logs !! >>>>>>>> currentThread is ... ${Thread.currentThread().name}")
+                                trackingRepository.saveTrackingLogs(
+                                    TrackingLog(
+                                        trackingStartTime = Date(currentTime),
+                                        trackingEndTime = Date(System.currentTimeMillis()),
+                                        trackingDistance = drivingDistance //m단위
+                                    )
                                 )
-                            )
+                            }
+                            stopForeground(true)
+                        } else {
+                            createNotificationAndStartService()
+                            withContext(Dispatchers.IO) {
+                                getLocationPerThreeSecond()
+                            }
+                            isServiceRunning = true
                         }
-                        stopForeground(true)
-                    } else {
-                        createNotificationAndStartService()
-                        CoroutineScope(Dispatchers.Default + parentJob).launch {
-                            getLocationPerThreeSecond()
-                        }
-                        isServiceRunnig = true
                     }
                 }
             }
@@ -94,7 +86,7 @@ class TrackingService : Service() {
         return super.onStartCommand(intent, flags, startId)
     }
 
-    fun createNotificationChannel() {
+    private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 NOTIFICATIO_CHANNEL_ID,
@@ -108,7 +100,7 @@ class TrackingService : Service() {
         }
     }
 
-    fun createNotificationAndStartService() {
+    private fun createNotificationAndStartService() {
 
         val intent = Intent(this, MainActivity::class.java).also {
             it.action = START_SERVICE
@@ -166,7 +158,7 @@ class TrackingService : Service() {
             fusedLocationProviderClient.requestLocationUpdates(
                 locationRequest,
                 locationCallback,
-                Looper.myLooper()!!             //동작확인을 위해 타입 강제함.
+                Looper.myLooper()!!
             )
         }
 
@@ -209,22 +201,16 @@ class TrackingService : Service() {
                 lastLocation = newLocation
             }
 
-            CoroutineScope(Dispatchers.IO + parentJob).launch {
-                println("db저장요청 >>>>>>>> currentThread is ... ${Thread.currentThread().name}")
-                trackingRepository.saveLocationLogs(
-                    LocationLog(
-                        latitude = locationResult.lastLocation.latitude.toString(),
-                        longitude = locationResult.lastLocation.longitude.toString(),
-                        startTime = currentTime
+            lifecycleScope.launch {
+                withContext(Dispatchers.IO) {
+                    println("db저장요청 >>>>>>>> currentThread is ... ${Thread.currentThread().name}")
+                    trackingRepository.saveLocationLogs(
+                        LocationLog(
+                            latitude = locationResult.lastLocation.latitude.toString(),
+                            longitude = locationResult.lastLocation.longitude.toString(),
+                            startTime = currentTime
+                        )
                     )
-                )
-            }
-            // 리스트의 길이 100개넘으면 db에 저장.? 아니면그냥 매번저장..?
-            CoroutineScope(Dispatchers.IO + parentJob).launch {
-                trackingRepository.getSavedLocationList(Date(currentTime)).onEach {
-                    it.onEach { log ->
-                        println("load from db $log >>>>>>>> currentThread is ... ${Thread.currentThread().name}")
-                    }
                 }
             }
         }
@@ -245,6 +231,8 @@ class TrackingService : Service() {
     fun getFormattedCurrentTime() {
         val now = System.currentTimeMillis()
     }
+
+    fun getServiceRunningStatus() = isServiceRunning
 
     companion object {
         const val NOTIFICATIO_ID = 1

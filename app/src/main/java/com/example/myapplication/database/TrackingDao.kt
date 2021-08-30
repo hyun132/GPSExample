@@ -11,12 +11,6 @@ import java.util.*
 @Dao
 interface TrackingDao {
 
-//    @Query("select * from tracking_table")
-//    fun getAll():Flow<List<TrackingLogWithLocationLog>>
-//
-//    @Query("select * from tracking_table")
-//    fun getLocationLog(key:Long):TrackingLogWithLocationLog
-
     @Insert
     fun insertLocationLog(locationLog: LocationLog)
 

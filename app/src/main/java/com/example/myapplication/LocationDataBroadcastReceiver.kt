@@ -7,12 +7,5 @@ import android.content.Intent
 class LocationDataBroadcastReceiver : BroadcastReceiver() {
     val TAG = "BroadcastReceiver"
     override fun onReceive(context: Context?, intent: Intent) {
-
-
-
-
     }
-
-
-
 }
