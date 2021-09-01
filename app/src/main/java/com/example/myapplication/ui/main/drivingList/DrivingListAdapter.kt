@@ -13,44 +13,39 @@ import java.util.*
 class DrivingListAdapter : ListAdapter<TrackingLog, DrivingListAdapter.DrivingListViewHolder>(
     DiffCallback()
 ) {
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DrivingListViewHolder {
-        val binding =
-            DrivingListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return DrivingListViewHolder(binding, itemClickListener)
-    }
-
-    override fun onBindViewHolder(holder: DrivingListViewHolder, position: Int) {
-        holder.bind(currentList[position])
-    }
-
     interface DrivingItemClickListener {
         fun onClick(startTime: Date)
     }
 
-    private lateinit var itemClickListener: DrivingItemClickListener
+    private var itemClickListener: DrivingItemClickListener? = null
 
-    fun setOnDrivingItemClickListener(listener: DrivingItemClickListener) {
-        this.itemClickListener = listener
+    fun setOnDrivingItemClickListener(listener: DrivingItemClickListener?) {
+        if (listener != null) {
+            this.itemClickListener = listener
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DrivingListViewHolder {
+        val binding =
+            DrivingListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return DrivingListViewHolder(binding)
+    }
+
+    override fun onBindViewHolder(holder: DrivingListViewHolder, position: Int) {
+        holder.bind(currentList[position], itemClickListener)
     }
 
     class DrivingListViewHolder(
-        private val binding: DrivingListItemBinding,
-        private val listener: DrivingItemClickListener
+        private val binding: DrivingListItemBinding
     ) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(trackingLog: TrackingLog) {
+        fun bind(trackingLog: TrackingLog, listener: DrivingItemClickListener?) {
             binding.apply {
-                tvDay.text = trackingLog.trackingStartTime.toString()
-                tvStartTime.text = trackingLog.trackingStartTime.toString()
-                tvEndTime.text = trackingLog.trackingEndTime.toString()
-                tvDrivingDistance.text = trackingLog.trackingDistance.toString()
-                tvDrivingTime.text =
-                    trackingLog.trackingStartTime.getTakenTime(trackingLog.trackingEndTime)
+                this.trackingLog = trackingLog
             }
 
             binding.root.setOnClickListener {
-                listener.onClick(trackingLog.trackingStartTime)
+                listener?.onClick(trackingLog.trackingStartTime)
             }
         }
     }

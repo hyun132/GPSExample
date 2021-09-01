@@ -16,7 +16,7 @@ class DrivingListViewModel(private val repository: TrackingRepository) : ViewMod
     val drivingList: LiveData<List<TrackingLog>>
         get() = _drivingList
 
-    fun getDrivingList() {
+    fun loadDrivingList() {
         viewModelScope.launch {
             repository.getSavedTrackingList()
                 .catch { exception -> exception.printStackTrace() }

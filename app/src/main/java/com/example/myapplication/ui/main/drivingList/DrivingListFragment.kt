@@ -13,7 +13,7 @@ import com.example.myapplication.databinding.FragmentDrivingListBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.*
 
-
+/* 주행목록 화면 */
 class DrivingListFragment : Fragment() {
 
     private val drivingListViewModel: DrivingListViewModel by viewModel()
@@ -26,14 +26,19 @@ class DrivingListFragment : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         binding = FragmentDrivingListBinding.inflate(inflater, container, false)
+        binding.apply {
+            lifecycleOwner = viewLifecycleOwner
+            viewModel = drivingListViewModel
+        }
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val drivingAdapter = DrivingListAdapter()
+        drivingListViewModel.loadDrivingList()
 
+        val drivingAdapter = DrivingListAdapter()
         drivingAdapter.setOnDrivingItemClickListener(object :
             DrivingListAdapter.DrivingItemClickListener {
             override fun onClick(startTime: Date) {
@@ -45,6 +50,7 @@ class DrivingListFragment : Fragment() {
             }
         }
         )
+
         binding.rvDrivingList.apply {
             adapter = drivingAdapter
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
@@ -53,12 +59,11 @@ class DrivingListFragment : Fragment() {
         drivingListViewModel.drivingList.observe(viewLifecycleOwner, {
             drivingAdapter.submitList(it)
         })
-
     }
 
     override fun onResume() {
         super.onResume()
-        drivingListViewModel.getDrivingList()
+        drivingListViewModel.loadDrivingList()
     }
 
     companion object {

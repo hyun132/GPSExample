@@ -5,11 +5,16 @@
 
     <data>
 
+        <variable
+            name="trackingLog"
+            type="com.example.myapplication.model.TrackingLog" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:padding="4dp">
 
         <TextView
             android:id="@+id/tv_day"
@@ -18,7 +23,8 @@
             android:padding="8dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="05일 수요일" />
+            day="@{trackingLog.trackingStartTime}"
+            tools:text="2020/02/02" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -36,8 +42,8 @@
                 android:textSize="20sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
+                android:text='@{trackingLog.trackingDistance + "m"}'
                 tools:text="0.0m" />
-
 
             <TextView
                 android:id="@+id/tv_driving_time"
@@ -48,6 +54,8 @@
                 app:layout_constraintBottom_toBottomOf="@id/tv_driving_time"
                 app:layout_constraintStart_toEndOf="@id/tv_driving_distance"
                 app:layout_constraintTop_toTopOf="@id/tv_driving_distance"
+                start="@{trackingLog.trackingStartTime}"
+                end="@{trackingLog.trackingEndTime}"
                 tools:text="00분 00초 소요" />
 
             <ImageView
@@ -67,6 +75,7 @@
                 app:layout_constraintBottom_toBottomOf="@+id/imageView"
                 app:layout_constraintStart_toEndOf="@+id/imageView"
                 app:layout_constraintTop_toTopOf="@+id/imageView"
+                time="@{trackingLog.trackingStartTime}"
                 tools:text="오후 10:30" />
 
             <ImageView
@@ -86,11 +95,10 @@
                 app:layout_constraintBottom_toBottomOf="@+id/imageView2"
                 app:layout_constraintStart_toEndOf="@+id/imageView2"
                 app:layout_constraintTop_toTopOf="@+id/imageView2"
+                time="@{trackingLog.trackingEndTime}"
                 tools:text="오후 10:30" />
 
-
         </androidx.constraintlayout.widget.ConstraintLayout>
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

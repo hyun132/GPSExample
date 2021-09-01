@@ -1,30 +1,25 @@
 package com.example.myapplication.ui.main.home
 
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import com.example.myapplication.model.LocationLog
+import android.location.Geocoder
+import android.location.Location
+import android.util.Log
+import android.widget.TextView
+import androidx.lifecycle.*
 import com.example.myapplication.repsitory.LogInRepository
+import com.example.myapplication.repsitory.TrackingRepository
 import com.google.android.gms.maps.model.LatLng
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import java.util.*
 
-class HomeViewModel(val repository: LogInRepository) : ViewModel() {
+class HomeViewModel(
+    trackingRepository: TrackingRepository
+) : ViewModel() {
 
     private val _currentLocation = MutableLiveData<LatLng>()
-//    val savedTrackingList = MutableLiveData<List<TrackingLogWithLocationLog>>()
+    var _isServiceRunning = trackingRepository.getTrackingServiceState()
+    var isServiceRunning: LiveData<Boolean> = _isServiceRunning
 
-//    fun getTrackingList() {
-//        CoroutineScope(Dispatchers.IO).launch {
-//            repository.getSavedTrackingList().map { savedTrackingList.postValue(it) }
-//        }
-//
-//    }
-
-//    fun saveTrackingLocation(location: LocationLog) {
-//        CoroutineScope(Dispatchers.IO).launch {
-//            repository.saveLocationLogs(location)
-//        }
-//    }
+    private var _currentAddress = trackingRepository.getCurrentAddress()
+    val currentAddress: LiveData<String>
+        get() = _currentAddress
 
 }

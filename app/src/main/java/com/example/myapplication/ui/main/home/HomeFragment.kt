@@ -12,6 +12,7 @@ import com.example.myapplication.R
 import com.example.myapplication.TrackingService
 import com.example.myapplication.TrackingService.Companion.START_SERVICE
 import com.example.myapplication.databinding.FragmentHomeBinding
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class HomeFragment : Fragment() {
@@ -24,36 +25,23 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentHomeBinding.inflate(inflater, container, false)
+        binding.apply {
+            viewModel = homeViewModel
+            lifecycleOwner = viewLifecycleOwner
+            fragment = this@HomeFragment
+        }
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-//        binding.apply {
-//            //이 부분 추후 데이터바인딩으로 처리
-//            tvTrackingStartButton.setOnClickListener {
-//                println("button clicked")
-//                Intent(requireContext(), TrackingService::class.java).also {
-//                    it.action = START_SERVICE
-//                    requireContext().startService(it)
-//                }
-//            }
-//
-//            tvGoToDrivingListButton.setOnClickListener {
-//                findNavController().navigate(R.id.action_homeFragment_to_drivingListFragment)
-//            }
-//        }
-    }
-
-    fun trackingButtonClicked(){
+    fun startService(view: View) {
+        println("button clicked")
         Intent(requireContext(), TrackingService::class.java).also {
             it.action = START_SERVICE
             requireContext().startService(it)
         }
     }
 
-    fun goToDrivingButtonClicked(){
+    fun goToDrivingList(view: View) {
         findNavController().navigate(R.id.action_homeFragment_to_drivingListFragment)
     }
 }

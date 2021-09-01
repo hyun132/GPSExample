@@ -8,14 +8,14 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
+import android.location.Geocoder
 import android.location.Location
 import android.os.Build
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.lifecycle.LifecycleService
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.*
 import com.example.myapplication.model.LocationLog
 import com.example.myapplication.model.TrackingLog
 import com.example.myapplication.repsitory.TrackingRepository
@@ -27,25 +27,35 @@ import com.google.android.gms.tasks.Task
 import kotlinx.coroutines.*
 import org.koin.android.ext.android.inject
 import java.util.*
+import kotlin.concurrent.timer
+import kotlin.math.roundToInt
 
 class TrackingService : LifecycleService() {
     val trackingRepository: TrackingRepository by inject()
-    private var isServiceRunning = false
+
     val TAG = "TrackingService"
 
-    private var currentLocation: Location? = null
+    lateinit var notificationManager: NotificationManager
+    lateinit var timerTask: Timer
+
+    private val _serviceRunningTime = MutableLiveData<String>("00:00")
+    val serviceRuntime: LiveData<String>
+        get() = _serviceRunningTime
+
+    private val _drivingDistance = MutableLiveData<Float>(0F)
+    val drivingDistance: LiveData<Float>
+        get() = _drivingDistance
 
     private val fusedLocationProviderClient: FusedLocationProviderClient by lazy {
         LocationServices.getFusedLocationProviderClient(this)
     }
 
-    var drivingDistance = 0.0
-    var lastLocation = Location("").apply {
+    var lastLocation = MutableLiveData(Location("").apply {
         latitude = 0.0
         longitude = 0.0
     }
-
-    val currentTime by lazy { System.currentTimeMillis() }
+    )
+    val startTime by lazy { System.currentTimeMillis() }
     //일단 테스트위해서
 
     override fun onBind(intent: Intent): IBinder {
@@ -58,32 +68,39 @@ class TrackingService : LifecycleService() {
             intent?.let {
                 when (it.action) {
                     START_SERVICE -> {
-                        if (isServiceRunning) {
-                            cancelGetLocationPerThreeSecond()
-                            //db에 주행기록 저장.
-                            withContext(Dispatchers.IO) {
-                                println("save tracking logs !! >>>>>>>> currentThread is ... ${Thread.currentThread().name}")
-                                trackingRepository.saveTrackingLogs(
-                                    TrackingLog(
-                                        trackingStartTime = Date(currentTime),
-                                        trackingEndTime = Date(System.currentTimeMillis()),
-                                        trackingDistance = drivingDistance //m단위
-                                    )
-                                )
-                            }
-                            stopForeground(true)
-                        } else {
-                            createNotificationAndStartService()
-                            withContext(Dispatchers.IO) {
-                                getLocationPerThreeSecond()
-                            }
-                            isServiceRunning = true
-                        }
+                        startOrStopService()
                     }
                 }
             }
         }
         return super.onStartCommand(intent, flags, startId)
+    }
+
+    private suspend fun startOrStopService() {
+        if (isServiceRunning.value == true) {
+            cancelGetLocationPerThreeSecond()
+            //db에 주행기록 저장.
+            withContext(Dispatchers.IO) {
+                trackingRepository.saveTrackingLogs(
+                    TrackingLog(
+                        trackingStartTime = Date(startTime),
+                        trackingEndTime = Date(System.currentTimeMillis()),
+                        trackingDistance = drivingDistance.value!!.roundToInt() //m단위
+                    )
+                )
+            }
+            isServiceRunning.postValue(false)
+            stopTimer()
+            stopForeground(true)
+        } else {
+            createNotificationAndStartService()
+            withContext(Dispatchers.IO) {
+                getLocationPerThreeSecond()
+                startTimer()
+            }
+            isServiceRunning.postValue(true)
+//            getCurrentAddress()
+        }
     }
 
     private fun createNotificationChannel() {
@@ -93,8 +110,10 @@ class TrackingService : LifecycleService() {
                 NOTIFICATION_CHANNEL_NAME,
                 IMPORTANCE_DEFAULT
             )
+            channel.setSound(null, null)
+            channel.enableVibration(false)
             // Register the channel with the system
-            val notificationManager: NotificationManager =
+            notificationManager =
                 getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
@@ -106,14 +125,15 @@ class TrackingService : LifecycleService() {
             it.action = START_SERVICE
             it.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
         }
-//
+
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, 0)
 
         val notificationBuilder = NotificationCompat.Builder(this, NOTIFICATIO_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle("app running")
-            .setContentText("테스트")
+            .setContentText("00:00")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setOnlyAlertOnce(true)
             .setAutoCancel(false)
             .setOngoing(true)
             .setContentIntent(pendingIntent)
@@ -121,6 +141,9 @@ class TrackingService : LifecycleService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) createNotificationChannel()
 
         startForeground(NOTIFICATIO_ID, notificationBuilder.build())
+
+        serviceRuntime.observe(this, { notifyTimeChanged(notificationBuilder, it) })
+
     }
 
     /*
@@ -132,13 +155,9 @@ class TrackingService : LifecycleService() {
     fun getLocationPerThreeSecond() {
 
         println(">>>>>>>> currentThread is ... ${Thread.currentThread().name}")
-
         fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
-            if (location != null) {
-                currentLocation = location
-            }
+            lastLocation.postValue(location)
         }
-
         val locationRequest = LocationRequest.create().apply {
             interval = 3000
             fastestInterval = 2000
@@ -152,7 +171,6 @@ class TrackingService : LifecycleService() {
 
         task.addOnSuccessListener { locationSettingsResponse ->
             // All location settings are satisfied. The client can initialize
-            //Looper에 대해서 조금 더 알아볼것. 일단 메인루퍼로 처리.
             //위치정보 변경사항 받아옴
             Log.d(TAG, "service running")
             fusedLocationProviderClient.requestLocationUpdates(
@@ -179,10 +197,9 @@ class TrackingService : LifecycleService() {
                 }
             }
         }
-
     }
 
-    val locationCallback = object : LocationCallback() {
+    private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
             super.onLocationResult(locationResult)
 
@@ -193,22 +210,32 @@ class TrackingService : LifecycleService() {
                 TAG,
                 "in locationCallback : currentLcation -> lat:${newLocation.latitude}, lng:${newLocation.longitude}"
             )
+            Log.d(TAG, "service State -> active : ${isServiceRunning.value}")
 
-            if (lastLocation.latitude == 0.0 && lastLocation.longitude == 0.0) {
-                lastLocation = newLocation
-            } else {
-                drivingDistance += calculateDistance(lastLocation, newLocation)
-                lastLocation = newLocation
+            lastLocation.value?.let { location ->
+                if (location.latitude == 0.0 && location.longitude == 0.0) {
+                    lastLocation.postValue(newLocation)
+                } else {
+                    _drivingDistance.postValue(
+                        _drivingDistance.value?.plus(
+                            calculateDistance(
+                                location,
+                                newLocation
+                            )
+                        )
+                    )
+                    lastLocation.postValue(newLocation)
+                }
             }
+
 
             lifecycleScope.launch {
                 withContext(Dispatchers.IO) {
-                    println("db저장요청 >>>>>>>> currentThread is ... ${Thread.currentThread().name}")
                     trackingRepository.saveLocationLogs(
                         LocationLog(
                             latitude = locationResult.lastLocation.latitude.toString(),
                             longitude = locationResult.lastLocation.longitude.toString(),
-                            startTime = currentTime
+                            startTime = startTime
                         )
                     )
                 }
@@ -228,18 +255,46 @@ class TrackingService : LifecycleService() {
         }
     }
 
-    fun getFormattedCurrentTime() {
-        val now = System.currentTimeMillis()
+    private fun startTimer() {
+        timer(period = TIMER_INTERVAL, initialDelay = TIMER_INTERVAL) {
+            val date = Date(System.currentTimeMillis())
+            _serviceRunningTime.postValue(
+                Date(startTime).getTakenTime(date)
+            )
+        }.also { timerTask = it }
     }
 
-    fun getServiceRunningStatus() = isServiceRunning
+    private fun stopTimer() {
+        timerTask.cancel()
+    }
+
+    private fun notifyTimeChanged(builder: NotificationCompat.Builder, time: String) {
+        Log.d("time", time)
+        builder.setContentText(time)
+        notificationManager.notify(NOTIFICATIO_ID, builder.build())
+    }
+
+    fun getCurrentAddress() {
+        val geocoder = Geocoder(applicationContext, Locale.KOREA)
+        lastLocation.observe(this, { location ->
+            Log.d("address", "${location.latitude}, ${location.longitude}")
+            val address =
+                geocoder.getFromLocation(location.latitude, location.longitude, 1)?.let {
+                    it[0]?.getAddressLine(1)
+                }
+            address?.let { currentAddress.postValue(it) }
+        })
+    }
 
     companion object {
         const val NOTIFICATIO_ID = 1
         const val NOTIFICATIO_CHANNEL_ID = "notificationChannelId"
         const val NOTIFICATION_CHANNEL_NAME = "notificationChannelName"
+        const val TIMER_INTERVAL = 1000L
         val START_SERVICE = "start service"
         val STOP_SERVICE = "stop service"
+        var isServiceRunning = MutableLiveData<Boolean>(false)
+        var currentAddress = MutableLiveData<String>("")
     }
 
 }

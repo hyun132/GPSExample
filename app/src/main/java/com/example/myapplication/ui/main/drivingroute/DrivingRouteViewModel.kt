@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.main.drivingroute
 
+import androidx.databinding.Bindable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel

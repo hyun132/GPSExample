@@ -15,7 +15,9 @@
         android:label="HomeFragment" >
         <action
             android:id="@+id/action_homeFragment_to_drivingListFragment"
-            app:destination="@id/drivingListFragment" />
+            app:destination="@id/drivingListFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
     </fragment>
     <fragment
         android:id="@+id/drivingListFragment"
@@ -24,7 +26,10 @@
         tools:layout="@layout/fragment_driving_list" >
         <action
             android:id="@+id/action_drivingListFragment_to_drivingRouteFragment"
-            app:destination="@id/drivingRouteFragment" >
+            app:destination="@id/drivingRouteFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:launchSingleTop="false">
             <argument
                 android:name="startTime"
                 app:argType="java.util.Date" />

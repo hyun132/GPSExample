@@ -15,6 +15,9 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.myapplication.R
 import com.example.myapplication.ui.login.LoginActivity
+import com.example.myapplication.ui.main.MainActivity
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * splash 시작 시 권한체크를 하고 권한 없으면 요청/종료
@@ -26,25 +29,19 @@ import com.example.myapplication.ui.login.LoginActivity
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {
 
-    // 상수부분은 추후 const파일에 저장할 것
-    companion object {
-        const val LOCATION_PERMISSION_CODE = 1001
-        const val BACKGROUND_LOCATION_PERMISSION_CODE = 1002
-    }
-
     val TAG = "SplashActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 
-        Handler(mainLooper).postDelayed({
+        lifecycleScope.launch {
+            delay(1000)
             checkPermissions()
-        }, 1000)
-
+        }
     }
 
-    val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
+    private val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
 
     fun checkPermissions() {
         permissions.map { checkThisPermissionGranted(it) }
@@ -93,7 +90,7 @@ class SplashActivity : AppCompatActivity() {
                     Manifest.permission.ACCESS_BACKGROUND_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED) -> {
                     Toast.makeText(this, "권한 설정됨", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this, LoginActivity::class.java))
+                    startActivity(Intent(this, MainActivity::class.java))
                 }
                 shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION) -> {
                     Log.d(TAG, "in background rationale")
@@ -116,7 +113,7 @@ class SplashActivity : AppCompatActivity() {
             }
         } else {
             Toast.makeText(this, "권한 설정됨", Toast.LENGTH_SHORT).show()
-            startActivity(Intent(this, LoginActivity::class.java))
+            startActivity(Intent(this, MainActivity::class.java))
         }
     }
 
@@ -134,27 +131,32 @@ class SplashActivity : AppCompatActivity() {
                 } else {
                     // Permission request was denied.
                     Toast.makeText(this, "서비스 이용을 위해 권한을 설정해주세요.", Toast.LENGTH_SHORT).show()
-                    lifecycleScope.launchWhenCreated { }
-                    Handler(mainLooper).postDelayed({
+                    lifecycleScope.launch {
+                        delay(1000)
                         finish()
-                    }, 1000)
+                    }
                 }
             }
             BACKGROUND_LOCATION_PERMISSION_CODE -> {
                 if (grantResults.size == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission has been granted. Start camera preview Activity.
                     Toast.makeText(this, "권한 설성 완료", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this, LoginActivity::class.java))
+                    startActivity(Intent(this, MainActivity::class.java))
                 } else {
                     // Permission request was denied.
                     Toast.makeText(this, "서비스 이용을 위해 권한을 설정해주세요.", Toast.LENGTH_SHORT).show()
-                    Handler(mainLooper).postDelayed({
+                    lifecycleScope.launch {
+                        delay(1000)
                         finish()
-                    }, 1000)
+                    }
                 }
             }
         }
+    }
 
-
+    // 상수부분은 추후 const파일에 저장할 것
+    companion object {
+        const val LOCATION_PERMISSION_CODE = 1001
+        const val BACKGROUND_LOCATION_PERMISSION_CODE = 1002
     }
 }

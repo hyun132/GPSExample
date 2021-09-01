@@ -1,6 +1,8 @@
 package com.example.myapplication.ui.login
 
 import android.util.Log
+import androidx.databinding.BaseObservable
+import androidx.databinding.ObservableField
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,32 +17,35 @@ class LoginViewModel(private val repository: LogInRepository) : ViewModel() {
     private val TAG = "LoginViewModel"
     val isLoginSuccess = MutableLiveData<Boolean>(false)
 
-    /*
-    * 로그인 요청하여 response 성공적으로 받을 경우 헤더에서 쿠키 추출하도록함.
-    * */
-    fun login(username: String, password: String) {
+    val username = MutableLiveData<String>("")
+    val password = MutableLiveData<String>("")
+
+    fun login() {
         viewModelScope.launch {
-            repository.login(username, password)?.let { response ->
-                response.body()?.let { body ->
-                    if (body.code == "200") {
-                        repository.saveCookieFromHeader(response)
-                        Log.d(TAG, "로그인 성공")
-                        isLoginSuccess.postValue(true)
-                    } else {
-                        Log.d(TAG, "로그인 실패")
+            withContext(Dispatchers.IO) {
+                if (username.value.isNullOrBlank() or password.value
+                        .isNullOrBlank()
+                ) return@withContext
+                repository.login(username.value!!, password.value!!)?.let { response ->
+                    response.body()?.let { body ->
+                        if (body.code == "200") {
+                            isLoginSuccess.postValue(true)
+                        } else {
+                            Log.d(TAG, "로그인 실패")
+                        }
                     }
-                }
-            } ?: println("응답없음")
+                } ?: println("응답없음")
+            }
         }
     }
 
     fun checkSession() {
         viewModelScope.launch {
-            withContext(Dispatchers.IO){
+            withContext(Dispatchers.IO) {
                 isLoginSuccess.postValue(repository.checkSession())
             }
-
-
         }
     }
+
+
 }

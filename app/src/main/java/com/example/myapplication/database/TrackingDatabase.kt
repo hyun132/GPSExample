@@ -1,10 +1,10 @@
 package com.example.myapplication.database
 
+import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.example.myapplication.MyApplication.Companion.getApplicationContext
 import com.example.myapplication.model.LocationLog
 import com.example.myapplication.model.TrackingLog
 
@@ -17,18 +17,12 @@ abstract class TrackingDatabase : RoomDatabase() {
     companion object {
         private var DB_INSTANCE: TrackingDatabase? = null
 
-        fun getInstance(): TrackingDatabase {
-            DB_INSTANCE?.let { return it }
-            synchronized(this) {
-                val instance = Room.databaseBuilder(
-                    getApplicationContext(),
-                    TrackingDatabase::class.java,
-                    "tracking_db"
-                ).build()
-
-                DB_INSTANCE = instance
-                return instance
-            }
+        fun getInstance(getApplicationContext: Context): TrackingDatabase {
+            return Room.databaseBuilder(
+                getApplicationContext,
+                TrackingDatabase::class.java,
+                "tracking_db"
+            ).build()
         }
     }
 }

@@ -17,13 +17,18 @@ fun calculationTimeDiff(date1: Date, date2: Date): CharSequence {
 * 소요시간 계산.
 * 위 함수 확장함수로 변경한 것.
 * */
-fun Date.getTakenTime(date1: Date): String {
-    val diff = this.time - date1.time
+fun Date.getTakenTime(endTime: Date): String {
+    val diff =  endTime.time - this.time
     val seconds = diff / 1000
     val minutes = seconds / 60
     val hours = minutes / 60
     val days = hours / 24
-    return "${hours}시간 ${minutes - 60 * hours}분 소요"
+    var result = ""
+
+    if (hours > 0) result = "${hours}시간 ${minutes - 60 * hours}분 소요"
+    else result = "${minutes}분 ${seconds - 60 * minutes}초 소요"
+
+    return result
 }
 
 fun calculateDistance(loc1: Location, loc2: Location): Float {

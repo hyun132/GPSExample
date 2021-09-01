@@ -1,5 +1,6 @@
 package com.example.myapplication.di
 
+import com.example.myapplication.MyApplication
 import com.example.myapplication.TrackingService
 import com.example.myapplication.api.LoginService
 import com.example.myapplication.database.TrackingDatabase
@@ -21,9 +22,10 @@ val viewModelModules = module {
 }
 
 val models = module {
-    single { TrackingDatabase.getInstance().trackingDao() }
+    single { TrackingDatabase.getInstance(androidContext()).trackingDao() }
     single { LoginService().loginApi }
-    single { TrackingRepository(get()) }
+    single { TrackingRepository(get(),get()) }
     single { TrackingService() }
     single { LogInRepository(get(), androidContext()) }
+    single { MyApplication() }
 }
