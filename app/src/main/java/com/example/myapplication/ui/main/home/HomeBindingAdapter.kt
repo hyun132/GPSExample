@@ -20,8 +20,10 @@ import java.util.*
 object HomeBindingAdapter {
     @JvmStatic
     @BindingAdapter("app:buttonText")
-    fun setButtonText(view: TextView, serviceIsActive: Boolean) {
-        view.text = if (serviceIsActive == true) "STOP" else "START"
+    fun setButtonText(view: TextView, serviceIsActive: LiveData<Boolean>) {
+        serviceIsActive.let {
+            view.text = if (it.value == true) "STOP" else "START"
+        }
     }
 
 //    @JvmStatic

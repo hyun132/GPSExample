@@ -88,8 +88,8 @@ class TrackingService : LifecycleService() {
                         trackingDistance = drivingDistance.value!!.roundToInt() //m단위
                     )
                 )
+                isServiceRunning.postValue(false)
             }
-            isServiceRunning.postValue(false)
             stopTimer()
             stopForeground(true)
         } else {
@@ -130,8 +130,9 @@ class TrackingService : LifecycleService() {
 
         val notificationBuilder = NotificationCompat.Builder(this, NOTIFICATIO_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentTitle("app running")
+            .setContentTitle("주행거리 측정중")
             .setContentText("00:00")
+            .setSmallIcon(R.drawable.ic_driving)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setOnlyAlertOnce(true)
             .setAutoCancel(false)
@@ -143,7 +144,6 @@ class TrackingService : LifecycleService() {
         startForeground(NOTIFICATIO_ID, notificationBuilder.build())
 
         serviceRuntime.observe(this, { notifyTimeChanged(notificationBuilder, it) })
-
     }
 
     /*
@@ -153,19 +153,15 @@ class TrackingService : LifecycleService() {
     @SuppressLint("MissingPermission")
     //처음에 앱 시작할때 권한 요청하기때문에 일단은 보류 -> 추후 해당 프래그먼트 resume될 때 다시 체크하도록 하던지..
     fun getLocationPerThreeSecond() {
-
-        println(">>>>>>>> currentThread is ... ${Thread.currentThread().name}")
-        fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
-            lastLocation.postValue(location)
-        }
+//        fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
+//            lastLocation.postValue(location)
+//        }
         val locationRequest = LocationRequest.create().apply {
             interval = 3000
             fastestInterval = 2000
             priority = PRIORITY_HIGH_ACCURACY // PRIORITY_HIGH_ACCURACY 는 가장 정확한 위치정보
         }
-
         val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
-
         val client: SettingsClient = LocationServices.getSettingsClient(this)
         val task: Task<LocationSettingsResponse> = client.checkLocationSettings(builder.build())
 
@@ -225,6 +221,7 @@ class TrackingService : LifecycleService() {
                         )
                     )
                     lastLocation.postValue(newLocation)
+                    getCurrentAddress(newLocation)
                 }
             }
 
@@ -269,21 +266,26 @@ class TrackingService : LifecycleService() {
     }
 
     private fun notifyTimeChanged(builder: NotificationCompat.Builder, time: String) {
-        Log.d("time", time)
-        builder.setContentText(time)
+        builder.apply {
+            setContentText(currentAddress.value)
+            setContentTitle("주행거리 기록중 $time")
+        }
         notificationManager.notify(NOTIFICATIO_ID, builder.build())
     }
 
-    fun getCurrentAddress() {
+
+    /*
+    * 현재위치를 주소로 변환
+    * */
+    fun getCurrentAddress(location: Location) {
         val geocoder = Geocoder(applicationContext, Locale.KOREA)
-        lastLocation.observe(this, { location ->
-            Log.d("address", "${location.latitude}, ${location.longitude}")
-            val address =
-                geocoder.getFromLocation(location.latitude, location.longitude, 1)?.let {
-                    it[0]?.getAddressLine(1)
-                }
-            address?.let { currentAddress.postValue(it) }
-        })
+        Log.d("address", "${location.latitude}, ${location.longitude}")
+        val address =
+            geocoder.getFromLocation(location.latitude, location.longitude, 1)?.let {
+                it[0]?.getAddressLine(0)
+            }
+        Log.d("address", "${location.latitude}, ${location.longitude} , ${address ?: "주소없음."}")
+        address?.let { currentAddress.postValue(it) }
     }
 
     companion object {

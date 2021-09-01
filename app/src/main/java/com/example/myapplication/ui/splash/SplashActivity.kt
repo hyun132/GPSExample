@@ -2,19 +2,20 @@ package com.example.myapplication.ui.splash
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
+import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
-import androidx.annotation.RequiresApi
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.myapplication.R
-import com.example.myapplication.ui.login.LoginActivity
 import com.example.myapplication.ui.main.MainActivity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -133,7 +134,7 @@ class SplashActivity : AppCompatActivity() {
                     Toast.makeText(this, "서비스 이용을 위해 권한을 설정해주세요.", Toast.LENGTH_SHORT).show()
                     lifecycleScope.launch {
                         delay(1000)
-                        finish()
+                        openPermissionSetting() // startActivity*** 대신 launcher사용..
                     }
                 }
             }
@@ -144,14 +145,31 @@ class SplashActivity : AppCompatActivity() {
                     startActivity(Intent(this, MainActivity::class.java))
                 } else {
                     // Permission request was denied.
-                    Toast.makeText(this, "서비스 이용을 위해 권한을 설정해주세요.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "서비스 이용을 위해 위치 권한을 설정해주세요.", Toast.LENGTH_SHORT).show()
                     lifecycleScope.launch {
                         delay(1000)
-                        finish()
+                        openPermissionSetting()
                     }
                 }
             }
         }
+    }
+
+    private val resultLauner =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                checkPermissions()
+            }
+        }
+
+    /* 권한 거절된 경우 앱 설정 화면으로 이동한다 */
+    private fun openPermissionSetting() {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+        intent.apply {
+            addCategory(Intent.CATEGORY_DEFAULT)
+            data = Uri.parse("package:$packageName")
+        }
+        resultLauner.launch(intent)
     }
 
     // 상수부분은 추후 const파일에 저장할 것

@@ -33,6 +33,14 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        homeViewModel.isServiceRunning.observe(viewLifecycleOwner,{
+            println("Service is running..... $it")
+        })
+    }
+
     fun startService(view: View) {
         println("button clicked")
         Intent(requireContext(), TrackingService::class.java).also {

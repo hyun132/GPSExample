@@ -14,6 +14,9 @@
             name="fragment"
             type="com.example.myapplication.ui.main.home.HomeFragment" />
 
+        <variable
+            name="view"
+            type="android.view.View" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -33,13 +36,25 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <ImageView
+            android:id="@+id/iv_address"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="16dp"
+            android:src="@drawable/ic_address"
+            android:visibility='@{viewModel.isServiceRunning? view.VISIBLE:view.INVISIBLE}'
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_driving_state" />
+
         <TextView
             android:id="@+id/tv_current_location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_driving_state"
+            android:layout_marginStart="8dp"
             android:text="@{viewModel.currentAddress}"
+            android:visibility='@{viewModel.isServiceRunning? view.VISIBLE:view.INVISIBLE}'
+            app:layout_constraintStart_toEndOf="@id/iv_address"
+            app:layout_constraintTop_toBottomOf="@id/tv_driving_state"
             tools:text="경기도 안양시 동안구" />
 
         <TextView
@@ -62,9 +77,9 @@
             android:id="@+id/tv_go_to_driving_list_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:onClick="@{fragment::goToDrivingList}"
             android:padding="8dp"
             android:text="나의 주행기록"
-            android:onClick="@{fragment::goToDrivingList}"
             android:textColor="@color/purple_200"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -78,14 +93,13 @@
             android:layout_marginBottom="30dp"
             android:background="@color/purple_500"
             android:gravity="center"
-            android:padding="8dp"
-            android:textSize="24sp"
             android:onClick="@{fragment::startService}"
+            android:padding="8dp"
             android:text='@{viewModel.isServiceRunning? "STOP":"START"}'
+            android:textSize="24sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
