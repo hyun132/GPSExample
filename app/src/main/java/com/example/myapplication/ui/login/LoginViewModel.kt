@@ -46,6 +46,4 @@ class LoginViewModel(private val repository: LogInRepository) : ViewModel() {
             }
         }
     }
-
-
 }

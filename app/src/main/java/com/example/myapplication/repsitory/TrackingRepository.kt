@@ -1,8 +1,8 @@
 package com.example.myapplication.repsitory
 
 import com.example.myapplication.TrackingService
-import com.example.myapplication.TrackingService.Companion.currentAddress
-import com.example.myapplication.TrackingService.Companion.isServiceRunning
+//import com.example.myapplication.TrackingService.Companion.currentAddress
+//import com.example.myapplication.TrackingService.Companion.isServiceRunning
 import com.example.myapplication.database.TrackingDao
 import com.example.myapplication.model.LocationLog
 import com.example.myapplication.model.TrackingLog
@@ -21,8 +21,10 @@ class TrackingRepository(
 
     fun getSavedTrackingList() = trackingDao.getTrackingLogs()
 
-    fun getTrackingServiceState() = isServiceRunning
+    fun rollbackSavedLocationList(startTime:Long) = trackingDao.getTrackingLogs()
 
-    fun getCurrentAddress() = currentAddress
+//    fun getTrackingServiceState() = isServiceRunning
+//
+//    fun getCurrentAddress() = currentAddress
 
 }

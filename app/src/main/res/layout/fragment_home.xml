@@ -30,7 +30,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="50dp"
             android:layout_marginEnd="16dp"
-            android:text='@{viewModel.isServiceRunning? "주행중! 안전운전하세요.":"주행을 시작하시겠습니까?"}'
+            android:text='@{viewModel.isTrackingStart? "주행중! 안전운전하세요.":"주행을 시작하시겠습니까?"}'
             android:textSize="32sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
@@ -42,7 +42,7 @@
             android:layout_height="20dp"
             android:layout_marginStart="16dp"
             android:src="@drawable/ic_address"
-            android:visibility='@{viewModel.isServiceRunning? view.VISIBLE:view.INVISIBLE}'
+            android:visibility='@{viewModel.isTrackingStart? view.VISIBLE:view.INVISIBLE}'
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_driving_state" />
 
@@ -51,8 +51,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="@{viewModel.currentAddress}"
-            android:visibility='@{viewModel.isServiceRunning? view.VISIBLE:view.INVISIBLE}'
+            android:text="@{viewModel.currentLocation}"
+            android:visibility='@{viewModel.isTrackingStart? view.VISIBLE:view.INVISIBLE}'
             app:layout_constraintStart_toEndOf="@id/iv_address"
             app:layout_constraintTop_toBottomOf="@id/tv_driving_state"
             tools:text="경기도 안양시 동안구" />
@@ -69,9 +69,21 @@
             android:id="@+id/tv_driving_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text='@{viewModel.drivingTime}'
+            android:textSize="20sp"
+            android:padding="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_driving_distance" />
+
+        <TextView
+            android:id="@+id/tv_driving_speed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text='@{viewModel.drivingSpeed}'
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_driving_time" />
 
         <TextView
             android:id="@+id/tv_go_to_driving_list_button"
@@ -95,7 +107,7 @@
             android:gravity="center"
             android:onClick="@{fragment::startService}"
             android:padding="8dp"
-            android:text='@{viewModel.isServiceRunning? "STOP":"START"}'
+            android:text='@{viewModel.isTrackingStart? "STOP":"START"}'
             android:textSize="24sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

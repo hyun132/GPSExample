@@ -13,6 +13,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -58,21 +59,19 @@ class DrivingRouteFragment : Fragment() {
         val departure = list[0]
         val destination = list[list.size - 1]
 
-//        var n: Double = destination.latitude
-//        var s: Double = departure.latitude
-//        var w: Double = departure.longitude
-//        var e: Double = destination.longitude
-//
-//        if (departure.latitude > destination.latitude) {
-//            n = departure.latitude
-//            s = destination.latitude
-//        }
-//        if (departure.longitude < destination.longitude) {
-//            w = destination.longitude
-//            e = departure.longitude
-//        }
+        var w: Double = destination.latitude
+        var e: Double = departure.latitude
+        var n: Double = departure.longitude
+        var s: Double = destination.longitude
 
-//        println("top is : $n ,bottom is : $s ,west is : $w ,east is : $s center is ${LatLngBounds(LatLng(s,w), LatLng(n,e)).center}")
+        if (departure.latitude < destination.latitude) { //가로
+            n = destination.latitude
+            s = departure.latitude
+        }
+        if (departure.longitude < destination.longitude) { // 세로
+            e = destination.longitude
+            w = departure.longitude
+        }
 
         map.apply {
             addPolyline(
@@ -84,17 +83,13 @@ class DrivingRouteFragment : Fragment() {
             )
             addMarker(MarkerOptions().position(departure).title("출발"))
             addMarker(MarkerOptions().position(destination).title("도착"))
-            moveCamera(
-                CameraUpdateFactory.newLatLngZoom(
-                    departure,
-                    10F
-                )
-            )
+
             uiSettings.apply {
                 isZoomControlsEnabled = true
                 isMyLocationButtonEnabled = true
             }
-//            setLatLngBoundsForCameraTarget(LatLngBounds(LatLng(s,w),LatLng(n,e)))
+            moveCamera(CameraUpdateFactory.newLatLngBounds(LatLngBounds(LatLng(s, w), LatLng(n, e)),400,400,10))
         }
+
     }
 }

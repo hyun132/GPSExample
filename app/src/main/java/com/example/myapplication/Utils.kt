@@ -25,8 +25,8 @@ fun Date.getTakenTime(endTime: Date): String {
     val days = hours / 24
     var result = ""
 
-    if (hours > 0) result = "${hours}시간 ${minutes - 60 * hours}분 소요"
-    else result = "${minutes}분 ${seconds - 60 * minutes}초 소요"
+    if (hours > 0) result = "${hours}시간 ${minutes - 60 * hours}분"
+    else result = "${minutes}분 ${seconds - 60 * minutes}초"
 
     return result
 }

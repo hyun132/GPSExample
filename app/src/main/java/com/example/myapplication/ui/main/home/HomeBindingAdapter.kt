@@ -26,22 +26,6 @@ object HomeBindingAdapter {
         }
     }
 
-//    @JvmStatic
-//    @BindingAdapter("address")
-//    fun setAddress(view: TextView, location: MutableLiveData<Location>) {
-//        val geocoder = Geocoder(view.context, Locale.KOREA)
-//        val temp = location.value
-//        Log.d("BindingAdapter", "lat : ${temp?.latitude}, ${temp?.longitude}")
-//        location.let {
-//            if (temp != null) {
-//                Log.d("address", "${temp.latitude}, ${temp.longitude}")
-//                view.text = geocoder.getFromLocation(temp.latitude, temp.longitude, 1)?.let {
-//                    it[0]?.getAddressLine(1)
-//                }
-//            }
-//        }
-//    }
-
     @SuppressLint("SimpleDateFormat")
     @JvmStatic
     @BindingAdapter("day")
@@ -58,13 +42,13 @@ object HomeBindingAdapter {
         view.text = formatter.format(date.time)
     }
 
-    @SuppressLint("SimpleDateFormat")
+    @SuppressLint("SimpleDateFormat", "SetTextI18n")
     @JvmStatic
     @BindingAdapter(value = ["start", "end"])
     fun getDrivingTime(view: TextView, start: Date, end: Date) {
         val drivingTime = start.getTakenTime(end)
         val formatter: DateFormat = SimpleDateFormat("HH:mm:ss")
-        view.text = drivingTime
+        view.text = drivingTime +" 소요"
     }
 
 //    @JvmStatic

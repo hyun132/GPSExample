@@ -20,6 +20,9 @@ interface TrackingDao {
     @Query("select * from location_table where startTime = :startTime")
     fun getLocationLogs(startTime: Date): Flow<List<LocationLog>>
 
-    @Query("select * from tracking_table")
+    @Query("select * from tracking_table order by trackingStartTime desc")
     fun getTrackingLogs(): Flow<List<TrackingLog>>
+
+    @Query("delete from location_table where startTime = :startTime")
+    fun rollbackSavedLocationLog(startTime: Long)
 }
