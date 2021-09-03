@@ -16,7 +16,7 @@ import org.koin.dsl.module
 
 val viewModelModules = module {
     viewModel { LoginViewModel(get()) }
-    viewModel { HomeViewModel(get()) }
+    viewModel { HomeViewModel() }
     viewModel { DrivingListViewModel(get()) }
     viewModel { DrivingRouteViewModel(get()) }
 }
@@ -24,7 +24,7 @@ val viewModelModules = module {
 val models = module {
     single { TrackingDatabase.getInstance(androidContext()).trackingDao() }
     single { LoginService().loginApi }
-    single { TrackingRepository(get(),get()) }
+    single { TrackingRepository(get()) }
     single { TrackingService() }
     single { LogInRepository(get(), androidContext()) }
     single { MyApplication() }

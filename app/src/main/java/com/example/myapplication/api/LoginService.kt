@@ -15,7 +15,6 @@ class LoginService {
 
         val client = OkHttpClient.Builder()
             .addInterceptor(logging)
-//            .addInterceptor(LoginCookieInterceptor())
             .build()
 
         Retrofit.Builder()

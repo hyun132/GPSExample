@@ -20,9 +20,7 @@ class LogInRepository(
     suspend fun login(username: String, password: String): Response<LoginResponse>? {
         var response: Response<LoginResponse>? = null
         try {
-            withContext(Dispatchers.IO) {
-                response = loginApi.login(LoginRequest(username, password))
-            }
+            response = loginApi.login(LoginRequest(username, password))
         } catch (e: IOException) {
             e.printStackTrace()
         }

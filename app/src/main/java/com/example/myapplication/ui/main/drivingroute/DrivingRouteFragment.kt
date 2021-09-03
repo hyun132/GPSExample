@@ -48,12 +48,12 @@ class DrivingRouteFragment : Fragment() {
         Log.d("test : ", drivingRouteViewModel.startTime.toString())
 
         drivingRouteViewModel.locationList.observe(viewLifecycleOwner, {
-            drawOnMap(it)
+            it?.let { drawOnMap(it)}
         })
     }
 
     /*
-    * 지도에 경로와 출발/도착지점 표시
+    * 지도에 경로와 출발/도착지점을 지도 가운데 표시
     * */
     private fun drawOnMap(list: List<LatLng>) {
         val departure = list[0]
@@ -90,6 +90,5 @@ class DrivingRouteFragment : Fragment() {
             }
             moveCamera(CameraUpdateFactory.newLatLngBounds(LatLngBounds(LatLng(s, w), LatLng(n, e)),400,400,10))
         }
-
     }
 }

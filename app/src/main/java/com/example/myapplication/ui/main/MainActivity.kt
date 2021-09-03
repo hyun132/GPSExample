@@ -9,6 +9,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.example.myapplication.R
+import com.example.myapplication.TrackingService.Companion.RESUME_SERVICE
 import com.example.myapplication.TrackingService.Companion.START_SERVICE
 
 class MainActivity : AppCompatActivity() {
@@ -24,15 +25,14 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
     }
 
-    override fun onNewIntent(intent: Intent?) {
-        super.onNewIntent(intent)
-        navigateToTrackingFragment(intent)
-    }
-
-    private fun navigateToTrackingFragment(intent: Intent?) {
-        if (intent?.action == START_SERVICE) {
-            findViewById<FragmentContainerView>(R.id.fragmentContainerView).findNavController()
-                .navigate(R.id.action_move_to_homeFragment)
-        }
-    }
+//    override fun onNewIntent(intent: Intent?) {
+//        super.onNewIntent(intent)
+//        navigateToTrackingFragment(intent)
+//    }
+//
+//    private fun navigateToTrackingFragment(intent: Intent?) {
+//        if (intent?.action == RESUME_SERVICE) {
+//            findNavController(R.id.fragmentContainerView).navigate(R.id.action_move_to_homeFragment)
+//        }
+//    }
 }

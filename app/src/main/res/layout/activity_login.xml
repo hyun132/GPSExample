@@ -10,6 +10,9 @@
             name="viewModel"
             type="com.example.myapplication.ui.login.LoginViewModel" />
 
+        <variable
+            name="view"
+            type="android.view.View" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -20,39 +23,49 @@
             android:id="@+id/et_id"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:padding="8dp"
-            android:inputType="textEmailAddress"
+            android:layout_margin="8dp"
             android:hint="@string/login_id_hint"
+            android:inputType="textEmailAddress"
+            android:padding="8dp"
             android:text="@={viewModel.username}"
-            android:layout_margin="8dp"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
             android:id="@+id/et_pw"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:padding="8dp"
-            android:inputType="textPassword"
+            android:layout_margin="8dp"
             android:hint="@string/login_password_hint"
+            android:inputType="textPassword"
+            android:padding="8dp"
             android:text="@={viewModel.password}"
-            app:layout_constraintTop_toBottomOf="@id/et_id"
-            android:layout_margin="8dp"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/et_id" />
 
         <TextView
             android:id="@+id/tv_login_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="8dp"
             android:layout_margin="8dp"
-            app:layout_constraintTop_toBottomOf="@id/et_pw"
-            android:text="@string/login_button_text"
-            android:onClick="@{()->viewModel.login()}"
+            android:background="@color/teal_200"
             android:gravity="center"
-            android:background="@color/teal_200"/>
+            android:onClick="@{()->viewModel.login()}"
+            android:padding="8dp"
+            android:text="@string/login_button_text"
+            app:layout_constraintTop_toBottomOf="@id/et_pw" />
+
+        <ProgressBar
+            android:id="@+id/pg_loading"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:visibility='@{viewModel.isLoading?view.VISIBLE:view.GONE}'
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

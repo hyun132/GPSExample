@@ -10,21 +10,16 @@ import java.util.*
 
 class TrackingRepository(
     private val trackingDao: TrackingDao,
-    private val trackingService: TrackingService
 ) {
 
-    fun saveLocationLogs(locationLog: LocationLog) = trackingDao.insertLocationLog(locationLog)
+    suspend fun saveLocationLogs(locationLog: LocationLog) = trackingDao.insertLocationLog(locationLog)
 
-    fun saveTrackingLogs(trackingLog: TrackingLog) = trackingDao.insertTrackingLog(trackingLog)
+    suspend fun saveTrackingLogs(trackingLog: TrackingLog) = trackingDao.insertTrackingLog(trackingLog)
 
     fun getSavedLocationList(startTime: Date) = trackingDao.getLocationLogs(startTime)
 
     fun getSavedTrackingList() = trackingDao.getTrackingLogs()
 
-    fun rollbackSavedLocationList(startTime:Long) = trackingDao.getTrackingLogs()
-
-//    fun getTrackingServiceState() = isServiceRunning
-//
-//    fun getCurrentAddress() = currentAddress
+    suspend fun rollbackSavedLocationList(startTime:Long) = trackingDao.rollbackSavedLocationLog(startTime)
 
 }

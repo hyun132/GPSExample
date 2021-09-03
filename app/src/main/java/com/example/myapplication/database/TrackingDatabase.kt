@@ -15,8 +15,6 @@ abstract class TrackingDatabase : RoomDatabase() {
     abstract fun trackingDao(): TrackingDao
 
     companion object {
-        private var DB_INSTANCE: TrackingDatabase? = null
-
         fun getInstance(getApplicationContext: Context): TrackingDatabase {
             return Room.databaseBuilder(
                 getApplicationContext,

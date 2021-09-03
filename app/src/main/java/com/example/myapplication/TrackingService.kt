@@ -6,12 +6,14 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.NotificationManager.IMPORTANCE_DEFAULT
 import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
 import android.location.Geocoder
 import android.location.Location
 import android.net.Uri
+import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.os.Looper
@@ -47,10 +49,6 @@ class TrackingService : LifecycleService() {
         LocationServices.getFusedLocationProviderClient(this)
     }
 
-    override fun onBind(intent: Intent): IBinder {
-        super.onBind(intent)
-        TODO("Return the communication channel to the service.")
-    }
 
     override fun onDestroy() {
         super.onDestroy()
@@ -65,7 +63,10 @@ class TrackingService : LifecycleService() {
                 when (it.action) {
                     START_SERVICE -> {
                         Log.d(TAG, "service START_SERVICE")
-                        startOrStopService()
+                        startTrackingService()
+                    }
+                    STOP_SERVICE -> {
+                        stopTrackingService()
                     }
                     else -> Log.d(TAG, "no_such_intent_action")
                 }
@@ -74,7 +75,7 @@ class TrackingService : LifecycleService() {
         return super.onStartCommand(intent, flags, startId)
     }
 
-    private fun startOrStopService() {
+    private fun stopTrackingService() {
         if (isServiceRunning.value == true) {
             cancelGetLocationPerThreeSecond()
             //db에 주행기록 저장.
@@ -82,7 +83,13 @@ class TrackingService : LifecycleService() {
             stopTimer()
             initalizeStateValue()
             isServiceRunning.postValue(false)
-        } else {
+            saveDataSavedSafety()
+        }
+    }
+
+    private fun startTrackingService() {
+        if (isServiceRunning.value == false) {
+            initDataSavedSafety()
             createNotificationAndStartService()
             getLocationPerThreeSecond()
             startTimer()
@@ -108,11 +115,11 @@ class TrackingService : LifecycleService() {
 
     private fun createNotificationAndStartService() {
         val intent = Intent(this, MainActivity::class.java).also {
-            it.action = START_SERVICE
-            it.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+            it.action = RESUME_SERVICE
+            it.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
 
-        val pendingIntent = PendingIntent.getActivity(this, 0, intent, 0)
+        val pendingIntent = PendingIntent.getActivity(this, 0, intent, FLAG_UPDATE_CURRENT)
 
         val notificationBuilder = NotificationCompat.Builder(this, NOTIFICATIO_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
@@ -211,7 +218,7 @@ class TrackingService : LifecycleService() {
                 )
                 currentSpeed.postValue(
                     String.format(
-                        Locale.US,
+                        Locale.KOREA,
                         "%.2fkm",
                         calculateDistance(location, newLocation) * 1200 / 1000
                     )
@@ -260,6 +267,7 @@ class TrackingService : LifecycleService() {
         super.onCreate()
 
         Log.d(TAG, "service onCreate")
+        checkDataSavedSafety()
     }
 
     /*
@@ -285,6 +293,7 @@ class TrackingService : LifecycleService() {
     }
 
     private fun saveTrackingLog() {
+        Log.d(TAG, "trackinflog saved")
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
                 trackingRepository.saveTrackingLogs(
@@ -320,12 +329,57 @@ class TrackingService : LifecycleService() {
         drivingDistance.postValue(0F)
     }
 
+    private fun checkDataSavedSafety() {
+        lifecycleScope.launch {
+            withContext(Dispatchers.IO) {
+                Log.d(TAG, "checkDataSavedSafety")
+                val sharedPref =
+                    applicationContext.getSharedPreferences("login-cookie", Context.MODE_PRIVATE)
+                        ?: null
+                sharedPref?.getString("save_safety", "")?.let { it ->
+                    if (it == "false") {
+                        sharedPref.getString("start_time", "")?.let { startTime ->
+                            trackingRepository.rollbackSavedLocationList(startTime.toLong())
+                            Log.d(TAG, "rollbackSavedLocationList")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun saveDataSavedSafety() {
+        val sharedPref =
+            applicationContext.getSharedPreferences("login-cookie", Context.MODE_PRIVATE) ?: null
+        sharedPref?.let {
+            with(it.edit()) {
+                putString("save_safety", "true")
+                apply()
+                Log.d(TAG, "sharedPref 저장")
+            }
+        }
+    }
+
+    private fun initDataSavedSafety() {
+        val sharedPref =
+            applicationContext.getSharedPreferences("login-cookie", Context.MODE_PRIVATE) ?: null
+        sharedPref?.let {
+            with(it.edit()) {
+                putString("save_safety", "false")
+                putString("start_time", startTime.toString())
+                apply()
+                Log.d(TAG, "sharedPref 저장")
+            }
+        }
+    }
+
     companion object {
         const val NOTIFICATIO_ID = 1
         const val NOTIFICATIO_CHANNEL_ID = "notificationChannelId"
         const val NOTIFICATION_CHANNEL_NAME = "notificationChannelName"
         const val TIMER_INTERVAL = 1000L
         val START_SERVICE = "start service"
+        val RESUME_SERVICE = "resume service"
         val STOP_SERVICE = "stop service"
 
         val isServiceRunning = MutableLiveData<Boolean>(false)
@@ -334,5 +388,4 @@ class TrackingService : LifecycleService() {
         val serviceRunningTime = MutableLiveData<String>("00:00")
         val drivingDistance = MutableLiveData<Float>(0F)
     }
-
 }

@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.myapplication.R
+import com.example.myapplication.ui.login.LoginActivity
 import com.example.myapplication.ui.main.MainActivity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -91,7 +92,8 @@ class SplashActivity : AppCompatActivity() {
                     Manifest.permission.ACCESS_BACKGROUND_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED) -> {
                     Toast.makeText(this, "권한 설정됨", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this, MainActivity::class.java))
+                    startActivity(Intent(this, LoginActivity::class.java))
+                    finish()
                 }
                 shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION) -> {
                     Log.d(TAG, "in background rationale")
@@ -114,7 +116,8 @@ class SplashActivity : AppCompatActivity() {
             }
         } else {
             Toast.makeText(this, "권한 설정됨", Toast.LENGTH_SHORT).show()
-            startActivity(Intent(this, MainActivity::class.java))
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
         }
     }
 
@@ -142,7 +145,8 @@ class SplashActivity : AppCompatActivity() {
                 if (grantResults.size == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission has been granted. Start camera preview Activity.
                     Toast.makeText(this, "권한 설성 완료", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this, MainActivity::class.java))
+                    startActivity(Intent(this, LoginActivity::class.java))
+                    finish()
                 } else {
                     // Permission request was denied.
                     Toast.makeText(this, "서비스 이용을 위해 위치 권한을 설정해주세요.", Toast.LENGTH_SHORT).show()

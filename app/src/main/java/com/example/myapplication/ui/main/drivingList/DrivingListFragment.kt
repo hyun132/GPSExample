@@ -1,6 +1,7 @@
 package com.example.myapplication.ui.main.drivingList
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -35,8 +36,8 @@ class DrivingListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        drivingListViewModel.loadDrivingList()
+//
+//        drivingListViewModel.loadDrivingList()
 
         val drivingAdapter = DrivingListAdapter()
         drivingAdapter.setOnDrivingItemClickListener(object :
@@ -56,16 +57,13 @@ class DrivingListFragment : Fragment() {
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         }
 
+//        drivingListViewModel.isLoading.observe(viewLifecycleOwner,{
+//            Log.d("DrivingListFragment :: ",it.toString())
+//        })
+
         drivingListViewModel.drivingList.observe(viewLifecycleOwner, {
             drivingAdapter.submitList(it)
+            drivingListViewModel.getTotalDrivingDistance()
         })
-    }
-
-    override fun onResume() {
-        super.onResume()
-        drivingListViewModel.loadDrivingList()
-    }
-
-    companion object {
     }
 }

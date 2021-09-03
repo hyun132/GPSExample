@@ -32,20 +32,26 @@ class DrivingListAdapter : ListAdapter<TrackingLog, DrivingListAdapter.DrivingLi
     }
 
     override fun onBindViewHolder(holder: DrivingListViewHolder, position: Int) {
-        holder.bind(currentList[position], itemClickListener)
+        val visibility =
+            position == 0 || (currentList[position].trackingEndTime.date != currentList[position - 1].trackingEndTime.date)
+        holder.bind(currentList[position], visibility, itemClickListener)
     }
 
     class DrivingListViewHolder(
         private val binding: DrivingListItemBinding
     ) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(trackingLog: TrackingLog, listener: DrivingItemClickListener?) {
+        fun bind(
+            trackingLog: TrackingLog,
+            visibility: Boolean,
+            listener: DrivingItemClickListener?
+        ) {
             binding.apply {
                 this.trackingLog = trackingLog
-            }
-
-            binding.root.setOnClickListener {
-                listener?.onClick(trackingLog.trackingStartTime)
+                dateVisibility = visibility
+                root.setOnClickListener {
+                    listener?.onClick(trackingLog.trackingStartTime)
+                }
             }
         }
     }
