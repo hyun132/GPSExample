@@ -12,7 +12,7 @@ import okhttp3.internal.format
 import java.text.DecimalFormat
 import java.util.*
 
-class DrivingListViewModel(private val repository: TrackingRepository) : ViewModel() {
+class DrivingListViewModel(private val repository: TrackingRepository) : BaseViewModel() {
 
     private val _drivingList = MutableLiveData<List<TrackingLog>>()
     val drivingList: LiveData<List<TrackingLog>> = repository.getSavedTrackingList()
@@ -21,10 +21,22 @@ class DrivingListViewModel(private val repository: TrackingRepository) : ViewMod
     val drivingDistance: LiveData<String>
         get() = _drivingDistance
 
+    init {
+        getDrivingList()
+    }
+
     fun getTotalDrivingDistance() {
         var sum = 0
         drivingList.value?.onEach { sum += it.trackingDistance }
         _drivingDistance.postValue("%.2f".format(sum / 1000f))
+    }
+
+    private fun getDrivingList() {
+        viewModelScope.launch {
+            dataLoad {
+                _drivingList.postValue(repository.getSavedTrackingList().value)
+            }
+        }
     }
 
 }

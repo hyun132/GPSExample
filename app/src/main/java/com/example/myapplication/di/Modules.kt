@@ -1,6 +1,7 @@
 package com.example.myapplication.di
 
 import com.example.myapplication.MyApplication
+import com.example.myapplication.ServiceStateRepository
 import com.example.myapplication.TrackingService
 import com.example.myapplication.api.LoginService
 import com.example.myapplication.database.TrackingDatabase
@@ -16,7 +17,7 @@ import org.koin.dsl.module
 
 val viewModelModules = module {
     viewModel { LoginViewModel(get()) }
-    viewModel { HomeViewModel() }
+    viewModel { HomeViewModel(get()) }
     viewModel { DrivingListViewModel(get()) }
     viewModel { DrivingRouteViewModel(get()) }
 }
@@ -28,4 +29,5 @@ val models = module {
     single { TrackingService() }
     single { LogInRepository(get(), androidContext()) }
     single { MyApplication() }
+    single { ServiceStateRepository() }
 }

@@ -10,7 +10,7 @@
             name="viewModel"
             type="com.example.myapplication.ui.main.drivingList.DrivingListViewModel" />
 
-        <import type="android.view.View"/>
+        <import type="android.view.View" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -38,10 +38,11 @@
             android:id="@+id/pg_loading"
             android:layout_width="30dp"
             android:layout_height="30dp"
+            android:visibility='@{viewModel.isLoading ? View.VISIBLE : View.GONE}'
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-<!--        android:visibility='@{viewModel.isLoading ? View.VISIBLE : View.GONE}'-->
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

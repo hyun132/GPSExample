@@ -1,7 +1,6 @@
 package com.example.myapplication
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.NotificationManager.IMPORTANCE_DEFAULT
@@ -12,15 +11,10 @@ import android.content.Intent
 import android.content.IntentSender
 import android.location.Geocoder
 import android.location.Location
-import android.net.Uri
-import android.os.Binder
 import android.os.Build
-import android.os.IBinder
 import android.os.Looper
-import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.*
 import com.example.myapplication.model.LocationLog
@@ -40,6 +34,7 @@ import kotlin.math.roundToInt
 
 class TrackingService : LifecycleService() {
     private val trackingRepository: TrackingRepository by inject()
+    private val serviceStateRepository: ServiceStateRepository by inject()
     val TAG = "TrackingService"
     lateinit var notificationManager: NotificationManager
     lateinit var timerTask: Timer
@@ -76,24 +71,24 @@ class TrackingService : LifecycleService() {
     }
 
     private fun stopTrackingService() {
-        if (isServiceRunning.value == true) {
+        if (serviceStateRepository.isServiceRunning.value == true) {
             cancelGetLocationPerThreeSecond()
             //db에 주행기록 저장.
             saveTrackingLog()
             stopTimer()
-            initalizeStateValue()
-            isServiceRunning.postValue(false)
+            initializeStateValue()
+            serviceStateRepository.isServiceRunning.postValue(false)
             saveDataSavedSafety()
         }
     }
 
     private fun startTrackingService() {
-        if (isServiceRunning.value == false) {
+        if (serviceStateRepository.isServiceRunning.value == false) {
             initDataSavedSafety()
             createNotificationAndStartService()
             getLocationPerThreeSecond()
             startTimer()
-            isServiceRunning.postValue(true)
+            serviceStateRepository.isServiceRunning.postValue(true)
         }
     }
 
@@ -136,7 +131,9 @@ class TrackingService : LifecycleService() {
 
         startForeground(NOTIFICATIO_ID, notificationBuilder.build())
 
-        serviceRunningTime.observe(this, { notifyTimeChanged(notificationBuilder, it) })
+        serviceStateRepository.serviceRunningTime.observe(
+            this,
+            { notifyTimeChanged(notificationBuilder, it) })
     }
 
     /*
@@ -211,12 +208,12 @@ class TrackingService : LifecycleService() {
             if (location.latitude == 0.0 && location.longitude == 0.0) {
                 lastLocation.postValue(newLocation)
             } else {
-                drivingDistance.postValue(
-                    drivingDistance.value?.plus(
+                serviceStateRepository.drivingDistance.postValue(
+                    serviceStateRepository.drivingDistance.value?.plus(
                         calculateDistance(location, newLocation)
                     )
                 )
-                currentSpeed.postValue(
+                serviceStateRepository.currentSpeed.postValue(
                     String.format(
                         Locale.KOREA,
                         "%.2fkm",
@@ -244,7 +241,7 @@ class TrackingService : LifecycleService() {
     private fun startTimer() {
         timer(period = TIMER_INTERVAL, initialDelay = TIMER_INTERVAL) {
             val date = Date(System.currentTimeMillis())
-            serviceRunningTime.postValue(Date(startTime).getTakenTime(date))
+            serviceStateRepository.serviceRunningTime.postValue(Date(startTime).getTakenTime(date))
         }.also { timerTask = it }
     }
 
@@ -257,7 +254,7 @@ class TrackingService : LifecycleService() {
     * */
     private fun notifyTimeChanged(builder: NotificationCompat.Builder, time: String) {
         builder.apply {
-            setContentText(currentAddress.value)
+            setContentText(serviceStateRepository.currentAddress.value)
             setContentTitle("주행거리 기록중 $time")
         }
         notificationManager.notify(NOTIFICATIO_ID, builder.build())
@@ -278,7 +275,7 @@ class TrackingService : LifecycleService() {
             val geocoder = Geocoder(applicationContext, Locale.KOREA)
             withContext(Dispatchers.IO) {
                 try {
-                    currentAddress.postValue(
+                    serviceStateRepository.currentAddress.postValue(
                         geocoder.getFromLocation(
                             location.latitude,
                             location.longitude,
@@ -300,7 +297,7 @@ class TrackingService : LifecycleService() {
                     TrackingLog(
                         trackingStartTime = Date(startTime),
                         trackingEndTime = Date(System.currentTimeMillis()),
-                        trackingDistance = drivingDistance.value!!.roundToInt() //m단위
+                        trackingDistance = serviceStateRepository.drivingDistance.value!!.roundToInt() //m단위
                     )
                 )
             }
@@ -321,12 +318,14 @@ class TrackingService : LifecycleService() {
         }
     }
 
-    private fun initalizeStateValue() {
-        isServiceRunning.postValue(false)
-        currentAddress.postValue("")
-        currentSpeed.postValue("0")
-        serviceRunningTime.postValue("00:00")
-        drivingDistance.postValue(0F)
+    private fun initializeStateValue() {
+        serviceStateRepository.apply {
+            isServiceRunning.postValue(false)
+            currentAddress.postValue("")
+            currentSpeed.postValue("0")
+            serviceRunningTime.postValue("00:00")
+            drivingDistance.postValue(0F)
+        }
     }
 
     private fun checkDataSavedSafety() {
@@ -349,13 +348,16 @@ class TrackingService : LifecycleService() {
     }
 
     private fun saveDataSavedSafety() {
-        val sharedPref =
-            applicationContext.getSharedPreferences("login-cookie", Context.MODE_PRIVATE) ?: null
-        sharedPref?.let {
-            with(it.edit()) {
-                putString("save_safety", "true")
-                apply()
-                Log.d(TAG, "sharedPref 저장")
+        CoroutineScope(Dispatchers.IO).launch {
+            val sharedPref =
+                applicationContext.getSharedPreferences("login-cookie", Context.MODE_PRIVATE)
+                    ?: null
+            sharedPref?.let {
+                with(it.edit()) {
+                    putString("save_safety", "true")
+                    apply()
+                    Log.d(TAG, "sharedPref 저장")
+                }
             }
         }
     }
@@ -381,11 +383,5 @@ class TrackingService : LifecycleService() {
         val START_SERVICE = "start service"
         val RESUME_SERVICE = "resume service"
         val STOP_SERVICE = "stop service"
-
-        val isServiceRunning = MutableLiveData<Boolean>(false)
-        val currentAddress = MutableLiveData<String>("")
-        val currentSpeed = MutableLiveData<String>("0")
-        val serviceRunningTime = MutableLiveData<String>("00:00")
-        val drivingDistance = MutableLiveData<Float>(0F)
     }
 }
