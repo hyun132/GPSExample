@@ -17,7 +17,6 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.myapplication.R
 import com.example.myapplication.ui.login.LoginActivity
-import com.example.myapplication.ui.main.MainActivity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

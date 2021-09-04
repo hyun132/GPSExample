@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.example.myapplication.services
 
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
@@ -17,8 +17,12 @@ import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.*
+import com.example.myapplication.R
+import com.example.myapplication.calculateDistance
+import com.example.myapplication.getTakenTime
 import com.example.myapplication.model.LocationLog
 import com.example.myapplication.model.TrackingLog
+import com.example.myapplication.repsitory.ServiceStateRepository
 import com.example.myapplication.repsitory.TrackingRepository
 import com.example.myapplication.ui.main.MainActivity
 import com.google.android.gms.common.api.ResolvableApiException
@@ -29,6 +33,7 @@ import kotlinx.coroutines.*
 import org.koin.android.ext.android.inject
 import java.util.*
 import kotlin.concurrent.timer
+import kotlin.math.log
 import kotlin.math.roundToInt
 
 
@@ -73,21 +78,19 @@ class TrackingService : LifecycleService() {
     private fun stopTrackingService() {
         if (serviceStateRepository.isServiceRunning.value == true) {
             cancelGetLocationPerThreeSecond()
-            //db에 주행기록 저장.
             saveTrackingLog()
             stopTimer()
             initializeStateValue()
             serviceStateRepository.isServiceRunning.postValue(false)
-            saveDataSavedSafety()
         }
     }
 
     private fun startTrackingService() {
         if (serviceStateRepository.isServiceRunning.value == false) {
-            initDataSavedSafety()
             createNotificationAndStartService()
             getLocationPerThreeSecond()
             startTimer()
+            saveTrackingLog()
             serviceStateRepository.isServiceRunning.postValue(true)
         }
     }
@@ -158,7 +161,6 @@ class TrackingService : LifecycleService() {
 
                 task.addOnSuccessListener {
                     // All location settings are satisfied. The client can initialize
-                    //위치정보 변경사항 받아옴
                     Log.d(TAG, "service running")
                     fusedLocationProviderClient.requestLocationUpdates(
                         locationRequest,
@@ -173,15 +175,6 @@ class TrackingService : LifecycleService() {
                         "위치정보를 가져올 수 없습니다. 위치설정을 해주세요.",
                         Toast.LENGTH_SHORT
                     )
-
-                    if (exception is ResolvableApiException) {
-                        //위치 못읽어오는 상태.
-                        try {
-                            Log.d(TAG, "위치정보 못받아옴!!")
-                        } catch (sendEx: IntentSender.SendIntentException) {
-                            // Ignore the error.
-                        }
-                    }
                 }
             }
         }
@@ -200,6 +193,7 @@ class TrackingService : LifecycleService() {
             )
             updateServiceStateValues(lastLocation, newLocation)
             saveLocationLog(locationResult)
+            saveTrackingLog()
         }
     }
 
@@ -238,11 +232,21 @@ class TrackingService : LifecycleService() {
         }
     }
 
+    /*
+    * 타이머시작.
+    * */
     private fun startTimer() {
-        timer(period = TIMER_INTERVAL, initialDelay = TIMER_INTERVAL) {
-            val date = Date(System.currentTimeMillis())
-            serviceStateRepository.serviceRunningTime.postValue(Date(startTime).getTakenTime(date))
-        }.also { timerTask = it }
+        lifecycleScope.launch {
+            timer(period = TIMER_INTERVAL, initialDelay = TIMER_INTERVAL) {
+                val date = Date(System.currentTimeMillis())
+                serviceStateRepository.serviceRunningTime.postValue(
+                    Date(startTime).getTakenTime(
+                        date
+                    )
+                )
+                Log.d(TAG, "timer is still working.. in ${Thread.currentThread().name}")
+            }.also { timerTask = it }
+        }
     }
 
     private fun stopTimer() {
@@ -262,9 +266,7 @@ class TrackingService : LifecycleService() {
 
     override fun onCreate() {
         super.onCreate()
-
         Log.d(TAG, "service onCreate")
-        checkDataSavedSafety()
     }
 
     /*
@@ -289,21 +291,25 @@ class TrackingService : LifecycleService() {
         }
     }
 
+    /*
+    * 비정상종료를 대비해 TrackingLog를 db에 저장해두고 업데이트
+    * */
     private fun saveTrackingLog() {
         Log.d(TAG, "trackinflog saved")
-        lifecycleScope.launch {
-            withContext(Dispatchers.IO) {
-                trackingRepository.saveTrackingLogs(
-                    TrackingLog(
-                        trackingStartTime = Date(startTime),
-                        trackingEndTime = Date(System.currentTimeMillis()),
-                        trackingDistance = serviceStateRepository.drivingDistance.value!!.roundToInt() //m단위
-                    )
+        CoroutineScope(Dispatchers.Main).launch {
+            trackingRepository.insertOrUpdateTrackingLog(
+                TrackingLog(
+                    trackingStartTime = Date(startTime),
+                    trackingEndTime = Date(System.currentTimeMillis()),
+                    trackingDistance = serviceStateRepository.drivingDistance.value!!.roundToInt() //m단위
                 )
-            }
+            )
         }
     }
 
+    /*
+     * 파라미터로 받은 위치정보를 db에 저장
+     * */
     private fun saveLocationLog(locationResult: LocationResult) {
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
@@ -325,53 +331,6 @@ class TrackingService : LifecycleService() {
             currentSpeed.postValue("0")
             serviceRunningTime.postValue("00:00")
             drivingDistance.postValue(0F)
-        }
-    }
-
-    private fun checkDataSavedSafety() {
-        lifecycleScope.launch {
-            withContext(Dispatchers.IO) {
-                Log.d(TAG, "checkDataSavedSafety")
-                val sharedPref =
-                    applicationContext.getSharedPreferences("login-cookie", Context.MODE_PRIVATE)
-                        ?: null
-                sharedPref?.getString("save_safety", "")?.let { it ->
-                    if (it == "false") {
-                        sharedPref.getString("start_time", "")?.let { startTime ->
-                            trackingRepository.rollbackSavedLocationList(startTime.toLong())
-                            Log.d(TAG, "rollbackSavedLocationList")
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private fun saveDataSavedSafety() {
-        CoroutineScope(Dispatchers.IO).launch {
-            val sharedPref =
-                applicationContext.getSharedPreferences("login-cookie", Context.MODE_PRIVATE)
-                    ?: null
-            sharedPref?.let {
-                with(it.edit()) {
-                    putString("save_safety", "true")
-                    apply()
-                    Log.d(TAG, "sharedPref 저장")
-                }
-            }
-        }
-    }
-
-    private fun initDataSavedSafety() {
-        val sharedPref =
-            applicationContext.getSharedPreferences("login-cookie", Context.MODE_PRIVATE) ?: null
-        sharedPref?.let {
-            with(it.edit()) {
-                putString("save_safety", "false")
-                putString("start_time", startTime.toString())
-                apply()
-                Log.d(TAG, "sharedPref 저장")
-            }
         }
     }
 

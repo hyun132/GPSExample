@@ -5,8 +5,6 @@ import android.util.Log
 import com.example.myapplication.api.LoginApi
 import com.example.myapplication.model.LoginRequest
 import com.example.myapplication.model.LoginResponse
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import retrofit2.Response
 import java.io.IOException
 

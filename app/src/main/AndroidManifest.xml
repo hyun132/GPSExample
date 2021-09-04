@@ -35,11 +35,9 @@
             android:value="@string/google_maps_key" />
 
         <service
-            android:name=".TrackingService"
+            android:name=".services.TrackingService"
             android:enabled="true"
             android:exported="false" />
-
-        <receiver android:name=".LocationDataBroadcastReceiver" />
 
         <activity
             android:name=".ui.login.LoginActivity"

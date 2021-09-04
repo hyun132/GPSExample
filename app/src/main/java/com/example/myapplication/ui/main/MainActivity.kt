@@ -1,16 +1,11 @@
 package com.example.myapplication.ui.main
 
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.fragment.app.FragmentContainerView
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.example.myapplication.R
-import com.example.myapplication.TrackingService.Companion.RESUME_SERVICE
-import com.example.myapplication.TrackingService.Companion.START_SERVICE
 
 class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration

@@ -1,12 +1,7 @@
 package com.example.myapplication.ui.main.home
 
-import android.app.PendingIntent
-import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
-import android.content.ServiceConnection
 import android.os.Bundle
-import android.os.IBinder
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -14,11 +9,10 @@ import android.view.ViewGroup
 import androidx.lifecycle.LiveData
 import androidx.navigation.fragment.findNavController
 import com.example.myapplication.R
-import com.example.myapplication.TrackingService
-import com.example.myapplication.TrackingService.Companion.START_SERVICE
-import com.example.myapplication.TrackingService.Companion.STOP_SERVICE
+import com.example.myapplication.services.TrackingService
+import com.example.myapplication.services.TrackingService.Companion.START_SERVICE
+import com.example.myapplication.services.TrackingService.Companion.STOP_SERVICE
 import com.example.myapplication.databinding.FragmentHomeBinding
-import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class HomeFragment : Fragment() {

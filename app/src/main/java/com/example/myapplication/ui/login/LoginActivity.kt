@@ -2,7 +2,6 @@ package com.example.myapplication.ui.login
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.example.myapplication.databinding.ActivityLoginBinding
 import com.example.myapplication.ui.main.MainActivity

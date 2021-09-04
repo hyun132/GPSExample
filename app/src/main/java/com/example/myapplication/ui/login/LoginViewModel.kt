@@ -1,19 +1,9 @@
 package com.example.myapplication.ui.login
 
 import android.util.Log
-import androidx.databinding.BaseObservable
-import androidx.databinding.ObservableField
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.example.myapplication.model.LoginRequest
 import com.example.myapplication.repsitory.LogInRepository
 import com.example.myapplication.ui.base.BaseViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class LoginViewModel(private val repository: LogInRepository) : BaseViewModel() {
 

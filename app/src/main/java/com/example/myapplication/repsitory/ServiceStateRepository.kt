@@ -1,7 +1,8 @@
-package com.example.myapplication
+package com.example.myapplication.repsitory
 
 import androidx.lifecycle.MutableLiveData
 
+/* Tracking Service의 상태값을 가지고 있는 객체 */
 class ServiceStateRepository {
     val isServiceRunning = MutableLiveData<Boolean>(false)
     val currentAddress = MutableLiveData<String>("")

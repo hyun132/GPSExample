@@ -1,9 +1,7 @@
 package com.example.myapplication.database
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
 import com.example.myapplication.model.LocationLog
 import com.example.myapplication.model.TrackingLog
 import kotlinx.coroutines.flow.Flow
@@ -15,8 +13,8 @@ interface TrackingDao {
     @Insert
     suspend fun insertLocationLog(locationLog: LocationLog)
 
-    @Insert
-    suspend fun insertTrackingLog(trackingLog: TrackingLog)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertOrUpdateTrackingLog(trackingLog: TrackingLog)
 
     @Query("select * from location_table where startTime = :startTime")
     fun getLocationLogs(startTime: Date): LiveData<List<LocationLog>>
@@ -24,6 +22,6 @@ interface TrackingDao {
     @Query("select * from tracking_table order by trackingStartTime desc")
     fun getTrackingLogs(): LiveData<List<TrackingLog>>
 
-    @Query("delete from location_table where startTime = :startTime")
-    suspend fun rollbackSavedLocationLog(startTime: Long)
+//    @Query("delete from location_table where startTime = :startTime")
+//    suspend fun rollbackSavedLocationLog(startTime: Long)
 }
