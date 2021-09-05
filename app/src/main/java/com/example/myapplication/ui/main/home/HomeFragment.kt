@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LiveData
 import androidx.navigation.fragment.findNavController
 import com.example.myapplication.R
@@ -13,29 +14,26 @@ import com.example.myapplication.services.TrackingService
 import com.example.myapplication.services.TrackingService.Companion.START_SERVICE
 import com.example.myapplication.services.TrackingService.Companion.STOP_SERVICE
 import com.example.myapplication.databinding.FragmentHomeBinding
+import com.example.myapplication.ui.base.BaseFragment
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.lang.Exception
 
-class HomeFragment : Fragment() {
 
-    lateinit var binding: FragmentHomeBinding
-    val homeViewModel: HomeViewModel by viewModel()
+class HomeFragment : BaseFragment<FragmentHomeBinding,HomeViewModel>() {
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        binding = FragmentHomeBinding.inflate(inflater, container, false)
+    override val viewModel: HomeViewModel by viewModel()
+    override var layoutResourceId: Int = R.layout.fragment_home
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         binding.apply {
-            viewModel = homeViewModel
-            lifecycleOwner = viewLifecycleOwner
             fragment = this@HomeFragment
         }
-        return binding.root
     }
 
-    fun startService(view: View,isServiceRunning:LiveData<Boolean>) {
+    fun startService(view: View, isServiceRunning: LiveData<Boolean>) {
         println("button clicked")
-        val action = if(isServiceRunning.value == true) STOP_SERVICE else START_SERVICE
+        val action = if (isServiceRunning.value == true) STOP_SERVICE else START_SERVICE
 
         Intent(requireContext(), TrackingService::class.java).also {
             it.action = action
@@ -47,4 +45,44 @@ class HomeFragment : Fragment() {
         findNavController().navigate(R.id.action_homeFragment_to_drivingListFragment)
     }
 
+
+
 }
+
+//class HomeFragment : Fragment() {
+//
+//    private val homeViewModel: HomeViewModel by viewModel()
+//    lateinit var binding: FragmentHomeBinding
+//
+//    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+//        super.onViewCreated(view, savedInstanceState)
+//        binding.apply {
+//            fragment = this@HomeFragment
+//            viewModel = homeViewModel
+//            lifecycleOwner = viewLifecycleOwner
+//        }
+//    }
+//
+//    override fun onCreateView(
+//        inflater: LayoutInflater, container: ViewGroup?,
+//        savedInstanceState: Bundle?
+//    ): View {
+//        binding = DataBindingUtil.inflate(inflater,R.layout.fragment_home,container,false)
+//        return binding.root
+//    }
+//
+//    fun startService(view: View, isServiceRunning: LiveData<Boolean>) {
+//        println("button clicked")
+//        val action = if (isServiceRunning.value == true) STOP_SERVICE else START_SERVICE
+//
+//        Intent(requireContext(), TrackingService::class.java).also {
+//            it.action = action
+//            requireContext().startService(it)
+//        }
+//    }
+//
+//    fun goToDrivingList(view: View) {
+//        findNavController().navigate(R.id.action_homeFragment_to_drivingListFragment)
+//    }
+//
+//}

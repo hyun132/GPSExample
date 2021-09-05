@@ -7,6 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.myapplication.model.LocationLog
 import com.example.myapplication.model.TrackingLog
+import com.example.myapplication.others.Constants.DB_NAME
 
 @Database(entities = [TrackingLog::class, LocationLog::class], version = 1)
 @TypeConverters(Converters::class)
@@ -19,7 +20,7 @@ abstract class TrackingDatabase : RoomDatabase() {
             return Room.databaseBuilder(
                 getApplicationContext,
                 TrackingDatabase::class.java,
-                "tracking_db"
+                DB_NAME
             ).build()
         }
     }

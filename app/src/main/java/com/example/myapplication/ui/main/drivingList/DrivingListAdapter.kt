@@ -58,7 +58,7 @@ class DrivingListAdapter : ListAdapter<TrackingLog, DrivingListAdapter.DrivingLi
 
     class DiffCallback : DiffUtil.ItemCallback<TrackingLog>() {
         override fun areItemsTheSame(oldItem: TrackingLog, newItem: TrackingLog): Boolean {
-            return oldItem.trackingId == newItem.trackingId
+            return oldItem.trackingStartTime == newItem.trackingStartTime
         }
 
         override fun areContentsTheSame(oldItem: TrackingLog, newItem: TrackingLog): Boolean {

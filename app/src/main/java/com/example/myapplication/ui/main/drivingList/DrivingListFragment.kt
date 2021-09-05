@@ -11,59 +11,46 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myapplication.R
 import com.example.myapplication.databinding.FragmentDrivingListBinding
+import com.example.myapplication.ui.base.BaseFragment
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.*
 
 /* 주행목록 화면 */
-class DrivingListFragment : Fragment() {
+class DrivingListFragment : BaseFragment<FragmentDrivingListBinding, DrivingListViewModel>() {
 
-    private val drivingListViewModel: DrivingListViewModel by viewModel()
-
-    private lateinit var binding: FragmentDrivingListBinding
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        // Inflate the layout for this fragment
-        binding = FragmentDrivingListBinding.inflate(inflater, container, false)
-        binding.apply {
-            lifecycleOwner = viewLifecycleOwner
-            viewModel = drivingListViewModel
-        }
-        return binding.root
-    }
+    override val viewModel: DrivingListViewModel by inject()
+    override var layoutResourceId: Int = R.layout.fragment_driving_list
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-//
-//        drivingListViewModel.loadDrivingList()
 
         val drivingAdapter = DrivingListAdapter()
-        drivingAdapter.setOnDrivingItemClickListener(object :
-            DrivingListAdapter.DrivingItemClickListener {
-            override fun onClick(startTime: Date) {
-                val bundle = bundleOf("startTime" to startTime)
-                findNavController().navigate(
-                    R.id.action_drivingListFragment_to_drivingRouteFragment,
-                    bundle
-                )
-            }
-        }
-        )
+        setItemClickListener(drivingAdapter)
 
         binding.rvDrivingList.apply {
             adapter = drivingAdapter
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         }
 
-//        drivingListViewModel.isLoading.observe(viewLifecycleOwner,{
-//            Log.d("DrivingListFragment :: ",it.toString())
-//        })
-
-        drivingListViewModel.drivingList.observe(viewLifecycleOwner, {
+        viewModel.drivingList.observe(viewLifecycleOwner, {
             drivingAdapter.submitList(it)
-            drivingListViewModel.getTotalDrivingDistance()
+            viewModel.getTotalDrivingDistance()
         })
+        viewModel.getDrivingList()
+    }
+
+    private fun setItemClickListener(drivingAdapter: DrivingListAdapter) {
+        drivingAdapter.setOnDrivingItemClickListener(object :
+            DrivingListAdapter.DrivingItemClickListener {
+            override fun onClick(startTime: Date) {
+                val action =
+                    DrivingListFragmentDirections.actionDrivingListFragmentToDrivingRouteFragment(
+                        startTime
+                    )
+                findNavController().navigate(action)
+            }
+        }
+        )
     }
 }

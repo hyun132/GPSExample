@@ -18,13 +18,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 object HomeBindingAdapter {
-    @JvmStatic
-    @BindingAdapter("app:buttonText")
-    fun setButtonText(view: TextView, serviceIsActive: LiveData<Boolean>) {
-        serviceIsActive.let {
-            view.text = if (it.value == true) "STOP" else "START"
-        }
-    }
 
     @SuppressLint("SimpleDateFormat")
     @JvmStatic
@@ -47,7 +40,6 @@ object HomeBindingAdapter {
     @BindingAdapter(value = ["start", "end"])
     fun getDrivingTime(view: TextView, start: Date, end: Date) {
         val drivingTime = start.getTakenTime(end)
-        val formatter: DateFormat = SimpleDateFormat("HH:mm:ss")
         view.text = drivingTime +" 소요"
     }
 

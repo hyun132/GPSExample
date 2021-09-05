@@ -13,9 +13,9 @@
             name="dateVisibility"
             type="Boolean" />
 
-        <variable
-            name="view"
-            type="android.view.View" />
+        <import type="com.example.myapplication.UtilsKt" />
+
+        <import type="android.view.View" />
 
 
     </data>
@@ -31,7 +31,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="8dp"
-            android:visibility="@{dateVisibility?view.VISIBLE:view.GONE}"
+            android:visibility="@{dateVisibility?View.VISIBLE:View.GONE}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="2020/02/02" />
@@ -49,7 +49,7 @@
                 android:id="@+id/tv_driving_distance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text='@{trackingLog.trackingDistance + "m"}'
+                android:text='@{UtilsKt.convertMeterToKm(trackingLog.trackingDistance)}'
                 android:textSize="20sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"

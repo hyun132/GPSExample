@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.IOException
 
 abstract class BaseViewModel : ViewModel() {
 
@@ -24,14 +25,13 @@ abstract class BaseViewModel : ViewModel() {
         Log.d("LoginViewModel", "hide progressBar!!!!!!")
     }
 
-    /* IO작업 하는 동안 progressbar 띄워주기 */
-    fun dataLoad(block: suspend () -> Unit) {
+    fun doIOWork(block: suspend () -> Unit) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 try {
                     showProgress()
                     block()
-                } catch (e: Exception) {
+                } catch (e: IOException) {
                     e.printStackTrace()
                 } finally {
                     hideProgress()

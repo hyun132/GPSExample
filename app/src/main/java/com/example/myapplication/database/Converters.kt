@@ -3,7 +3,9 @@ package com.example.myapplication.database
 import androidx.room.TypeConverter
 import java.util.*
 
-
+/*
+* room에서 데이터 저장/불러올때 자동으로 변환할 타입
+* */
 class Converters {
     @TypeConverter
     fun timestampToDate(value: Long?): Date? {
@@ -12,6 +14,6 @@ class Converters {
 
     @TypeConverter
     fun dateToTimestamp(date: Date?): Long? {
-        return date?.time?.toLong()
+        return date?.time
     }
 }

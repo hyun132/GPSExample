@@ -22,6 +22,4 @@ interface TrackingDao {
     @Query("select * from tracking_table order by trackingStartTime desc")
     fun getTrackingLogs(): LiveData<List<TrackingLog>>
 
-//    @Query("delete from location_table where startTime = :startTime")
-//    suspend fun rollbackSavedLocationLog(startTime: Long)
 }

@@ -2,7 +2,7 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/nav_grahp"
+    android:id="@+id/nav_graph"
     app:startDestination="@id/homeFragment">
 
     <action android:id="@+id/action_move_to_homeFragment"
@@ -30,13 +30,14 @@
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"
             app:launchSingleTop="false">
-            <argument
-                android:name="startTime"
-                app:argType="java.util.Date" />
         </action>
     </fragment>
     <fragment
         android:id="@+id/drivingRouteFragment"
         android:name="com.example.myapplication.ui.main.drivingroute.DrivingRouteFragment"
-        android:label="DrivingRouteFragment" />
+        android:label="DrivingRouteFragment" >
+        <argument
+            android:name="startTime"
+            app:argType="java.util.Date" />
+    </fragment>
 </navigation>

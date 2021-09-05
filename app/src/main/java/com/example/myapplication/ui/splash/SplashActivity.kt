@@ -27,7 +27,6 @@ import kotlinx.coroutines.launch
  * android 12부터 커스텀스플래시 안되나봄..
  * 이 부분 변경필요
  */
-@SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {
 
     val TAG = "SplashActivity"
@@ -60,7 +59,10 @@ class SplashActivity : AppCompatActivity() {
                     Manifest.permission.ACCESS_FINE_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED) -> {
                     // You can use the API that requires the permission.
-                    checkBackgroundPermissionGranted()
+//                    checkBackgroundPermissionGranted()
+                    Toast.makeText(this, "권한 설정됨", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this, LoginActivity::class.java))
+                    finish()
                 }
                 shouldShowRequestPermissionRationale(permission) -> {
                     Toast.makeText(this, "서비스 사용을 위해서 권한이 필요합니다.", Toast.LENGTH_SHORT).show()
@@ -130,7 +132,10 @@ class SplashActivity : AppCompatActivity() {
         when (requestCode) {
             LOCATION_PERMISSION_CODE -> {
                 if (grantResults.size == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    checkBackgroundPermissionGranted()
+//                    checkBackgroundPermissionGranted()
+                    Toast.makeText(this, "권한 설정됨", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this, LoginActivity::class.java))
+                    finish()
                 } else {
                     // Permission request was denied.
                     Toast.makeText(this, "서비스 이용을 위해 권한을 설정해주세요.", Toast.LENGTH_SHORT).show()
@@ -140,21 +145,21 @@ class SplashActivity : AppCompatActivity() {
                     }
                 }
             }
-            BACKGROUND_LOCATION_PERMISSION_CODE -> {
-                if (grantResults.size == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission has been granted. Start camera preview Activity.
-                    Toast.makeText(this, "권한 설성 완료", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this, LoginActivity::class.java))
-                    finish()
-                } else {
-                    // Permission request was denied.
-                    Toast.makeText(this, "서비스 이용을 위해 위치 권한을 설정해주세요.", Toast.LENGTH_SHORT).show()
-                    lifecycleScope.launch {
-                        delay(1000)
-                        openPermissionSetting()
-                    }
-                }
-            }
+//            BACKGROUND_LOCATION_PERMISSION_CODE -> {
+//                if (grantResults.size == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                    // Permission has been granted. Start camera preview Activity.
+//                    Toast.makeText(this, "권한 설성 완료", Toast.LENGTH_SHORT).show()
+//                    startActivity(Intent(this, LoginActivity::class.java))
+//                    finish()
+//                } else {
+//                    // Permission request was denied.
+//                    Toast.makeText(this, "서비스 이용을 위해 위치 권한을 설정해주세요.", Toast.LENGTH_SHORT).show()
+//                    lifecycleScope.launch {
+//                        delay(1000)
+//                        openPermissionSetting()
+//                    }
+//                }
+//            }
         }
     }
 

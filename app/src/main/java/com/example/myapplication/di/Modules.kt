@@ -8,6 +8,7 @@ import com.example.myapplication.database.TrackingDatabase
 import com.example.myapplication.repsitory.LogInRepository
 import com.example.myapplication.repsitory.TrackingRepository
 import com.example.myapplication.ui.login.LoginViewModel
+import com.example.myapplication.ui.main.drivingList.DrivingListFragment
 import com.example.myapplication.ui.main.drivingList.DrivingListViewModel
 import com.example.myapplication.ui.main.drivingroute.DrivingRouteViewModel
 import com.example.myapplication.ui.main.home.HomeViewModel
@@ -22,7 +23,7 @@ val viewModelModules = module {
     viewModel { DrivingRouteViewModel(get()) }
 }
 
-val models = module {
+val modules = module {
     single { TrackingDatabase.getInstance(androidContext()).trackingDao() }
     single { LogInRepository(get(), androidContext()) }
     single { TrackingRepository(get()) }

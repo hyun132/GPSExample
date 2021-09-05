@@ -2,6 +2,7 @@ package com.example.myapplication.ui.login
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.myapplication.databinding.ActivityLoginBinding
 import com.example.myapplication.ui.main.MainActivity
@@ -14,7 +15,6 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityLoginBinding.inflate(layoutInflater)
         binding.apply {
             lifecycleOwner = this@LoginActivity
@@ -29,5 +29,10 @@ class LoginActivity : AppCompatActivity() {
                 finish()
             }
         })
+
+        loginViewModel.errorMessage.observe(this, {
+            if (it != "") Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+        })
     }
+
 }
