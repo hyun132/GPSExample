@@ -7,8 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.navArgs
 import com.example.myapplication.R
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -20,7 +18,6 @@ import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import java.util.*
 
 class DrivingRouteFragment : Fragment(), OnMapReadyCallback {
 
@@ -42,9 +39,6 @@ class DrivingRouteFragment : Fragment(), OnMapReadyCallback {
         Log.d("map : ", "onViewCreated")
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(this)
-
-        val startTime = args.startTime
-        drivingRouteViewModel.getDrivingRoute(startTime)
     }
 
     /*
@@ -56,10 +50,10 @@ class DrivingRouteFragment : Fragment(), OnMapReadyCallback {
             val departure = list[0]
             val destination = list[list.size - 1]
 
-            val e = list.maxByOrNull { it.longitude }?.longitude
-            val w = list.minByOrNull { it.longitude }?.longitude
-            val s = list.minByOrNull { it.latitude }?.latitude
-            val n = list.maxByOrNull { it.latitude }?.latitude
+            val east = list.maxByOrNull { it.longitude }?.longitude
+            val west = list.minByOrNull { it.longitude }?.longitude
+            val south = list.minByOrNull { it.latitude }?.latitude
+            val north = list.maxByOrNull { it.latitude }?.latitude
 
             map?.apply {
                 addPolyline(
@@ -78,7 +72,7 @@ class DrivingRouteFragment : Fragment(), OnMapReadyCallback {
                 }
                 moveCamera(
                     CameraUpdateFactory.newLatLngBounds(
-                        LatLngBounds(LatLng(s!!, w!!), LatLng(n!!, e!!)),
+                        LatLngBounds(LatLng(south!!, west!!), LatLng(north!!, east!!)),
                         400,
                         400,
                         10
@@ -91,8 +85,9 @@ class DrivingRouteFragment : Fragment(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         Log.d("map : ", "callback")
-        drivingRouteViewModel.drivingRoute.observe(viewLifecycleOwner, { list ->
-            list?.let { drawOnMap(it) }
+        val startTime = args.startTime
+        drivingRouteViewModel.getDrivingRoute(startTime).observe(viewLifecycleOwner, {
+            drawOnMap(it)
         })
     }
 }

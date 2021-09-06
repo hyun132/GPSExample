@@ -30,5 +30,4 @@ val modules = module {
     single { LoginService().loginApi }
     single { ServiceStateRepository() }
     single { TrackingService() }
-    single { MyApplication() }
 }

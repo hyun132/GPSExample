@@ -1,14 +1,8 @@
 package com.example.myapplication.ui.login
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
 import com.example.myapplication.repsitory.LogInRepository
 import com.example.myapplication.ui.base.BaseViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.IOException
 
 class LoginViewModel(private val repository: LogInRepository) : BaseViewModel() {
 
@@ -18,6 +12,10 @@ class LoginViewModel(private val repository: LogInRepository) : BaseViewModel() 
     val username = MutableLiveData<String>("")
     val password = MutableLiveData<String>("")
     val errorMessage = MutableLiveData("")
+
+    init {
+        checkSession()
+    }
 
     fun login() {
         doIOWork {
@@ -41,7 +39,7 @@ class LoginViewModel(private val repository: LogInRepository) : BaseViewModel() 
         }
     }
 
-    fun checkSession() {
+    private fun checkSession() {
         doIOWork {
             isLoginSuccess.postValue(repository.checkSession())
         }

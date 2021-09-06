@@ -1,6 +1,5 @@
 package com.example.myapplication.ui.base
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -22,20 +21,17 @@ abstract class BaseViewModel : ViewModel() {
 
     fun hideProgress() {
         _isLoading.postValue(false)
-        Log.d("LoginViewModel", "hide progressBar!!!!!!")
     }
 
     fun doIOWork(block: suspend () -> Unit) {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                try {
-                    showProgress()
-                    block()
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                } finally {
-                    hideProgress()
-                }
+            try {
+                showProgress()
+                block()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            } finally {
+                hideProgress()
             }
         }
     }

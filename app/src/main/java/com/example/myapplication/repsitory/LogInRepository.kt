@@ -18,10 +18,12 @@ class LogInRepository(
     private val TAG = "LoginRepository"
 
     /* 아이디와 비밀번호 이용한 로그인 */
-    suspend fun login(username: String, password: String): Response<LoginResponse> = loginApi.login(LoginRequest(username, password))
+    suspend fun login(username: String, password: String): Response<LoginResponse> =
+        loginApi.login(LoginRequest(username, password))
 
     /* 저장된 쿠키 값을 이용한 로그인 */
-    private suspend fun logInWithCookie(cookie: String): Response<LoginResponse> = loginApi.loginWithCookie(cookie)
+    private suspend fun logInWithCookie(cookie: String): Response<LoginResponse> =
+        loginApi.loginWithCookie(cookie)
 
     /*
     * 헤더에서 쿠키 정보 얻어 sharedPreference에 저장

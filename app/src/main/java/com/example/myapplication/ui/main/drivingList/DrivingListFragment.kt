@@ -37,7 +37,6 @@ class DrivingListFragment : BaseFragment<FragmentDrivingListBinding, DrivingList
             drivingAdapter.submitList(it)
             viewModel.getTotalDrivingDistance()
         })
-        viewModel.getDrivingList()
     }
 
     private fun setItemClickListener(drivingAdapter: DrivingListAdapter) {

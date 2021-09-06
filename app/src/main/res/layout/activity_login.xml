@@ -52,7 +52,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            android:background="@color/teal_200"
+            android:background="@color/purple_200"
             android:gravity="center"
             android:onClick="@{()->viewModel.login()}"
             android:padding="12dp"

@@ -40,18 +40,6 @@ object HomeBindingAdapter {
     @BindingAdapter(value = ["start", "end"])
     fun getDrivingTime(view: TextView, start: Date, end: Date) {
         val drivingTime = start.getTakenTime(end)
-        view.text = drivingTime +" 소요"
+        view.text = drivingTime + " 소요"
     }
-
-//    @JvmStatic
-//    @BindingAdapter("trackingList")
-//    fun bindTrackingList(recyclerView: RecyclerView,list: LiveData<List<TrackingLog>>) {
-//        if (recyclerView.adapter == null) {
-//            recyclerView.apply {
-//                layoutManager = LinearLayoutManager(recyclerView.context)
-//                adapter = DrivingListAdapter()
-//            }
-//        }
-//        (recyclerView.adapter as DrivingListAdapter).submitList(list.value)
-//    }
 }

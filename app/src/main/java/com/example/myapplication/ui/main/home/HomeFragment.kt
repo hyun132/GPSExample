@@ -19,7 +19,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.lang.Exception
 
 
-class HomeFragment : BaseFragment<FragmentHomeBinding,HomeViewModel>() {
+class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>() {
 
     override val viewModel: HomeViewModel by viewModel()
     override var layoutResourceId: Int = R.layout.fragment_home
@@ -44,45 +44,4 @@ class HomeFragment : BaseFragment<FragmentHomeBinding,HomeViewModel>() {
     fun goToDrivingList(view: View) {
         findNavController().navigate(R.id.action_homeFragment_to_drivingListFragment)
     }
-
-
-
 }
-
-//class HomeFragment : Fragment() {
-//
-//    private val homeViewModel: HomeViewModel by viewModel()
-//    lateinit var binding: FragmentHomeBinding
-//
-//    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-//        super.onViewCreated(view, savedInstanceState)
-//        binding.apply {
-//            fragment = this@HomeFragment
-//            viewModel = homeViewModel
-//            lifecycleOwner = viewLifecycleOwner
-//        }
-//    }
-//
-//    override fun onCreateView(
-//        inflater: LayoutInflater, container: ViewGroup?,
-//        savedInstanceState: Bundle?
-//    ): View {
-//        binding = DataBindingUtil.inflate(inflater,R.layout.fragment_home,container,false)
-//        return binding.root
-//    }
-//
-//    fun startService(view: View, isServiceRunning: LiveData<Boolean>) {
-//        println("button clicked")
-//        val action = if (isServiceRunning.value == true) STOP_SERVICE else START_SERVICE
-//
-//        Intent(requireContext(), TrackingService::class.java).also {
-//            it.action = action
-//            requireContext().startService(it)
-//        }
-//    }
-//
-//    fun goToDrivingList(view: View) {
-//        findNavController().navigate(R.id.action_homeFragment_to_drivingListFragment)
-//    }
-//
-//}

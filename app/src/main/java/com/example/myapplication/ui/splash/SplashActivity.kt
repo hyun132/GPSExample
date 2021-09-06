@@ -31,6 +31,14 @@ class SplashActivity : AppCompatActivity() {
 
     val TAG = "SplashActivity"
 
+    private val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
+    private val resultLauner =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                checkPermissions()
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
@@ -41,9 +49,7 @@ class SplashActivity : AppCompatActivity() {
         }
     }
 
-    private val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
-
-    fun checkPermissions() {
+    private fun checkPermissions() {
         permissions.map { checkThisPermissionGranted(it) }
     }
 
@@ -59,10 +65,7 @@ class SplashActivity : AppCompatActivity() {
                     Manifest.permission.ACCESS_FINE_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED) -> {
                     // You can use the API that requires the permission.
-//                    checkBackgroundPermissionGranted()
-                    Toast.makeText(this, "권한 설정됨", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this, LoginActivity::class.java))
-                    finish()
+                    goToMainActivity()
                 }
                 shouldShowRequestPermissionRationale(permission) -> {
                     Toast.makeText(this, "서비스 사용을 위해서 권한이 필요합니다.", Toast.LENGTH_SHORT).show()
@@ -92,9 +95,7 @@ class SplashActivity : AppCompatActivity() {
                     applicationContext,
                     Manifest.permission.ACCESS_BACKGROUND_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED) -> {
-                    Toast.makeText(this, "권한 설정됨", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this, LoginActivity::class.java))
-                    finish()
+                    goToMainActivity()
                 }
                 shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION) -> {
                     Log.d(TAG, "in background rationale")
@@ -116,9 +117,7 @@ class SplashActivity : AppCompatActivity() {
                 }
             }
         } else {
-            Toast.makeText(this, "권한 설정됨", Toast.LENGTH_SHORT).show()
-            startActivity(Intent(this, LoginActivity::class.java))
-            finish()
+            goToMainActivity()
         }
     }
 
@@ -132,7 +131,6 @@ class SplashActivity : AppCompatActivity() {
         when (requestCode) {
             LOCATION_PERMISSION_CODE -> {
                 if (grantResults.size == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                    checkBackgroundPermissionGranted()
                     Toast.makeText(this, "권한 설정됨", Toast.LENGTH_SHORT).show()
                     startActivity(Intent(this, LoginActivity::class.java))
                     finish()
@@ -145,30 +143,8 @@ class SplashActivity : AppCompatActivity() {
                     }
                 }
             }
-//            BACKGROUND_LOCATION_PERMISSION_CODE -> {
-//                if (grantResults.size == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                    // Permission has been granted. Start camera preview Activity.
-//                    Toast.makeText(this, "권한 설성 완료", Toast.LENGTH_SHORT).show()
-//                    startActivity(Intent(this, LoginActivity::class.java))
-//                    finish()
-//                } else {
-//                    // Permission request was denied.
-//                    Toast.makeText(this, "서비스 이용을 위해 위치 권한을 설정해주세요.", Toast.LENGTH_SHORT).show()
-//                    lifecycleScope.launch {
-//                        delay(1000)
-//                        openPermissionSetting()
-//                    }
-//                }
-//            }
         }
     }
-
-    private val resultLauner =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                checkPermissions()
-            }
-        }
 
     /* 권한 거절된 경우 앱 설정 화면으로 이동한다 */
     private fun openPermissionSetting() {
@@ -178,6 +154,12 @@ class SplashActivity : AppCompatActivity() {
             data = Uri.parse("package:$packageName")
         }
         resultLauner.launch(intent)
+    }
+
+    private fun goToMainActivity() {
+        Toast.makeText(this, "권한 설정됨", Toast.LENGTH_SHORT).show()
+        startActivity(Intent(this, LoginActivity::class.java))
+        finish()
     }
 
     // 상수부분은 추후 const파일에 저장할 것
