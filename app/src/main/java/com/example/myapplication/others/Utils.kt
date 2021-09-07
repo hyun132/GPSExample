@@ -1,14 +1,13 @@
 package com.example.myapplication
 
 import android.location.Location
-import com.google.android.gms.maps.model.LatLng
 import java.util.*
 
 /*
 * 소요시간 계산.
 * */
-fun Date.getTakenTime(endTime: Date): String {
-    val diff = endTime.time - this.time
+fun Long.getTakenTime(endTime: Long): String {
+    val diff = endTime - this
     val seconds = diff / 1000
     val minutes = seconds / 60
     val hours = minutes / 60

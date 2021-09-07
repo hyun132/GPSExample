@@ -9,8 +9,8 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "location_table")
 data class LocationLog(
     @PrimaryKey(autoGenerate = true)
-    val locationLogId:Int=0,
-    val latitude : String,
-    val longitude : String,
-    val startTime:Long
+    val locationLogId: Int = 0,
+    val latitude: String,
+    val longitude: String,
+    val startTime: Long
 )

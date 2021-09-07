@@ -38,6 +38,6 @@
         android:label="DrivingRouteFragment" >
         <argument
             android:name="startTime"
-            app:argType="java.util.Date" />
+            app:argType="long" />
     </fragment>
 </navigation>

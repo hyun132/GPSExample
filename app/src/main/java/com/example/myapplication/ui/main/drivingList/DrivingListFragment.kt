@@ -42,7 +42,7 @@ class DrivingListFragment : BaseFragment<FragmentDrivingListBinding, DrivingList
     private fun setItemClickListener(drivingAdapter: DrivingListAdapter) {
         drivingAdapter.setOnDrivingItemClickListener(object :
             DrivingListAdapter.DrivingItemClickListener {
-            override fun onClick(startTime: Date) {
+            override fun onClick(startTime: Long) {
                 val action =
                     DrivingListFragmentDirections.actionDrivingListFragmentToDrivingRouteFragment(
                         startTime

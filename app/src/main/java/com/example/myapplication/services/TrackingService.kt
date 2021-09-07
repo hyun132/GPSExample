@@ -239,9 +239,9 @@ class TrackingService : LifecycleService() {
     * */
     private fun startTimer() {
         timer(period = TIMER_INTERVAL, initialDelay = TIMER_INTERVAL) {
-            val date = Date(System.currentTimeMillis())
+            val date = System.currentTimeMillis()
             serviceStateRepository.serviceRunningTime.postValue(
-                Date(startTime).getTakenTime(date)
+                startTime.getTakenTime(date)
             )
             Log.d(TAG, "timer is still working.. in ${Thread.currentThread().name}")
         }.also { timerTask = it }
@@ -297,8 +297,8 @@ class TrackingService : LifecycleService() {
         CoroutineScope(Dispatchers.IO).launch { //새로운 스코프 만들어 서비스 종료되어도 저장은 완료할 수 있게
             serviceStateRepository.drivingDistance.value?.let {
                 TrackingLog(
-                    trackingStartTime = Date(startTime),
-                    trackingEndTime = Date(System.currentTimeMillis()),
+                    trackingStartTime = startTime,
+                    trackingEndTime = System.currentTimeMillis(),
                     trackingDistance = it.roundToInt() //m단위
                 )
             }?.let { trackingRepository.insertOrUpdateTrackingLog(it) }

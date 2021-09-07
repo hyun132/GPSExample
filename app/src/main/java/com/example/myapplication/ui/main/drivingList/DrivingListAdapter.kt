@@ -6,7 +6,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.databinding.DrivingListItemBinding
-import com.example.myapplication.getTakenTime
 import com.example.myapplication.model.TrackingLog
 import java.util.*
 
@@ -14,7 +13,7 @@ class DrivingListAdapter : ListAdapter<TrackingLog, DrivingListAdapter.DrivingLi
     DiffCallback()
 ) {
     interface DrivingItemClickListener {
-        fun onClick(startTime: Date)
+        fun onClick(startTime: Long)
     }
 
     private var itemClickListener: DrivingItemClickListener? = null
@@ -33,7 +32,7 @@ class DrivingListAdapter : ListAdapter<TrackingLog, DrivingListAdapter.DrivingLi
 
     override fun onBindViewHolder(holder: DrivingListViewHolder, position: Int) {
         val visibility =
-            position == 0 || (currentList[position].trackingEndTime.date != currentList[position - 1].trackingEndTime.date)
+            position == 0 || (Date(currentList[position].trackingEndTime).date != Date(currentList[position - 1].trackingEndTime).date)
         holder.bind(currentList[position], visibility, itemClickListener)
     }
 

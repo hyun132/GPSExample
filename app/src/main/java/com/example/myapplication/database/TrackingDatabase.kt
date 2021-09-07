@@ -10,7 +10,6 @@ import com.example.myapplication.model.TrackingLog
 import com.example.myapplication.others.Constants.DB_NAME
 
 @Database(entities = [TrackingLog::class, LocationLog::class], version = 1)
-@TypeConverters(Converters::class)
 abstract class TrackingDatabase : RoomDatabase() {
 
     abstract fun trackingDao(): TrackingDao

@@ -9,7 +9,7 @@ import java.util.*
 * */
 @Entity(tableName = "tracking_table")
 data class TrackingLog(
-    @PrimaryKey val trackingStartTime: Date, //기록 시작한 시각
-    val trackingEndTime: Date, //기록 종료한 시각
+    @PrimaryKey val trackingStartTime: Long, //기록 시작한 시각
+    val trackingEndTime: Long, //기록 종료한 시각
     val trackingDistance: Int
 )

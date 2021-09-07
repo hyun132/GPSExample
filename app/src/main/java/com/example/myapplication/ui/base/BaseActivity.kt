@@ -1,11 +1,13 @@
 package com.example.myapplication.ui.base
 
+import android.app.Dialog
 import android.os.Bundle
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import com.example.myapplication.BR
+import com.example.myapplication.R
 
 abstract class BaseActivity<T : ViewDataBinding, V : BaseViewModel> :
     AppCompatActivity() {
@@ -13,6 +15,7 @@ abstract class BaseActivity<T : ViewDataBinding, V : BaseViewModel> :
     lateinit var binding: T
     abstract val viewModel: V
     abstract val layoutId: Int
+    lateinit var dialog: Dialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,5 +24,22 @@ abstract class BaseActivity<T : ViewDataBinding, V : BaseViewModel> :
             lifecycleOwner = this@BaseActivity
             setVariable(BR.viewModel, viewModel)
         }
+        dialog = Dialog(this)
+        dialog.setContentView(R.layout.loading_dialog)
+        viewModel.isLoading.observe(this, {
+            when (it) {
+                true -> {
+                    dialog.show()
+                }
+                false -> {
+                    dialog.hide()
+                }
+            }
+        })
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        dialog.dismiss()
     }
 }

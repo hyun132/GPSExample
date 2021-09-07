@@ -19,26 +19,24 @@ import java.util.*
 
 object HomeBindingAdapter {
 
-    @SuppressLint("SimpleDateFormat")
     @JvmStatic
     @BindingAdapter("day")
-    fun getDay(view: TextView, date: Date) {
-        val formatter: DateFormat = SimpleDateFormat("yyyy/MM/dd")
-        view.text = formatter.format(date.time)
+    fun getDay(view: TextView, date: Long) {
+        val formatter: DateFormat = SimpleDateFormat("yyyy/MM/dd",Locale.KOREA)
+        view.text = formatter.format(date)
     }
 
-    @SuppressLint("SimpleDateFormat")
     @JvmStatic
     @BindingAdapter("time")
-    fun getTime(view: TextView, date: Date) {
-        val formatter: DateFormat = SimpleDateFormat("HH:mm:ss")
-        view.text = formatter.format(date.time)
+    fun getTime(view: TextView, date: Long) {
+        val formatter: DateFormat = SimpleDateFormat("HH:mm:ss",Locale.KOREA)
+        view.text = formatter.format(date)
     }
 
     @SuppressLint("SimpleDateFormat", "SetTextI18n")
     @JvmStatic
     @BindingAdapter(value = ["start", "end"])
-    fun getDrivingTime(view: TextView, start: Date, end: Date) {
+    fun getDrivingTime(view: TextView, start: Long, end: Long) {
         val drivingTime = start.getTakenTime(end)
         view.text = drivingTime + " 소요"
     }

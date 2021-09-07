@@ -17,7 +17,7 @@ interface TrackingDao {
     suspend fun insertOrUpdateTrackingLog(trackingLog: TrackingLog)
 
     @Query("select * from location_table where startTime = :startTime")
-    fun getLocationLogs(startTime: Date): LiveData<List<LocationLog>>
+    fun getLocationLogs(startTime: Long): LiveData<List<LocationLog>>
 
     @Query("select * from tracking_table order by trackingStartTime desc")
     fun getTrackingLogs(): LiveData<List<TrackingLog>>

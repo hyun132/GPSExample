@@ -25,6 +25,7 @@ class DrivingRouteFragment : Fragment(), OnMapReadyCallback {
     var map: GoogleMap? = null
     val args: DrivingRouteFragmentArgs by navArgs()
 
+    var startTime: Long = 0
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -50,10 +51,10 @@ class DrivingRouteFragment : Fragment(), OnMapReadyCallback {
             val departure = list[0]
             val destination = list[list.size - 1]
 
-            val east = list.maxByOrNull { it.longitude }?.longitude
-            val west = list.minByOrNull { it.longitude }?.longitude
-            val south = list.minByOrNull { it.latitude }?.latitude
-            val north = list.maxByOrNull { it.latitude }?.latitude
+            val east = list.maxByOrNull { it.longitude }?.longitude ?: DEFAULT_LATITUDE
+            val west = list.minByOrNull { it.longitude }?.longitude ?: DEFAULT_LATITUDE
+            val south = list.minByOrNull { it.latitude }?.latitude ?: DEFAULT_LONGITUDE
+            val north = list.maxByOrNull { it.latitude }?.latitude ?: DEFAULT_LONGITUDE
 
             map?.apply {
                 addPolyline(
@@ -72,10 +73,10 @@ class DrivingRouteFragment : Fragment(), OnMapReadyCallback {
                 }
                 moveCamera(
                     CameraUpdateFactory.newLatLngBounds(
-                        LatLngBounds(LatLng(south!!, west!!), LatLng(north!!, east!!)),
-                        400,
-                        400,
-                        10
+                        LatLngBounds(LatLng(south, west), LatLng(north, east)),
+                        ROUTE_SIZE,
+                        ROUTE_SIZE,
+                        PADDING
                     )
                 )
             }
@@ -85,9 +86,14 @@ class DrivingRouteFragment : Fragment(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         Log.d("map : ", "callback")
-        val startTime = args.startTime
+        startTime = args.startTime
         drivingRouteViewModel.getDrivingRoute(startTime).observe(viewLifecycleOwner, {
             drawOnMap(it)
         })
     }
+
+    val ROUTE_SIZE = 400
+    val PADDING = 10
+    val DEFAULT_LATITUDE = 37.33
+    val DEFAULT_LONGITUDE = 126.59
 }

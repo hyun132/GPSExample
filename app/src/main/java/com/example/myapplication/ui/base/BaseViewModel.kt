@@ -15,11 +15,11 @@ abstract class BaseViewModel : ViewModel() {
     val isLoading: LiveData<Boolean>
         get() = _isLoading
 
-    fun showProgress() {
+    private fun showProgress() {
         _isLoading.postValue(true)
     }
 
-    fun hideProgress() {
+    private fun hideProgress() {
         _isLoading.postValue(false)
     }
 
